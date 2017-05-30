@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.cz.home.persistence.PersistenceRuntimeException;
-import org.cz.security.Security;
+import org.cz.json.security.Security;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -73,6 +73,22 @@ public class SecurityDoaImpl extends NamedParameterJdbcDaoSupport implements Sec
 		}
 	}
 	
+	@Override
+	public List<Security> searchSecuritys(String searchTerm) {
+		
+		try
+		{
+			final String sql = "SELECT * FROM security WHERE name LIKE '%" + searchTerm + "%'";
+			List<Security> secs = getJdbcTemplate().query(sql, BeanPropertyRowMapper.newInstance(Security.class));
+			log.info("Got : " + secs.size());
+			return secs;
+		}
+		catch (DataAccessException e)
+		{
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}
+	}
 	
 	@Override
 	public List<Security> getSecuritys() {
@@ -81,6 +97,7 @@ public class SecurityDoaImpl extends NamedParameterJdbcDaoSupport implements Sec
 		{
 			final String sql = "SELECT * FROM security";
 			List<Security> secs = getJdbcTemplate().query(sql, BeanPropertyRowMapper.newInstance(Security.class));
+			log.info("Got : " + secs.size());
 			return secs;
 		}
 		catch (DataAccessException e)
@@ -123,7 +140,7 @@ public class SecurityDoaImpl extends NamedParameterJdbcDaoSupport implements Sec
 		}	
 	}
 
-	private void deleteSecurity(Security security){
+	private void deleteSecurity(final Security security){
 		
 		try
 		{

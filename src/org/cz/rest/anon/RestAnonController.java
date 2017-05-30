@@ -11,6 +11,10 @@ public interface RestAnonController {
 	// CzResultJson contains List<Security> if success, message if fail
 	public CzResultJson getSecurities();
 	
+	@RequestMapping(value = "/searchSecurities")
+	// CzResultJson contains List<Security> if success, message if fail
+	public CzResultJson searchSecurities(final String searchTerm);
+	
 	@RequestMapping(value = "/getSecurityDailyForRange")
 	// Dx4ResultJson contains List<SecurityDaily> if success, message if fail
 	public CzResultJson getSecurityDailyForRange(final String ticker,final Date start,final Date end);

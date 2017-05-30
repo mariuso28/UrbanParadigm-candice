@@ -9,8 +9,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.cz.home.Home;
-import org.cz.security.Security;
-import org.cz.security.SecurityDaily;
+import org.cz.json.security.Security;
+import org.cz.json.security.SecurityDaily;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 

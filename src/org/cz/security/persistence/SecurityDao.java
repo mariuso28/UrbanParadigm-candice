@@ -2,7 +2,7 @@ package org.cz.security.persistence;
 
 import java.util.List;
 
-import org.cz.security.Security;
+import org.cz.json.security.Security;
 
 public interface SecurityDao {
 	
@@ -11,5 +11,6 @@ public interface SecurityDao {
 	public List<Security> getSecuritys();
 	public void storeSecurity(final Security security);
 	public Security getSecurityByCode(String code);
+	public List<Security> searchSecuritys(String searchTerm);
 		
 }

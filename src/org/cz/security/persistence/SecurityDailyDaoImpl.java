@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.cz.home.persistence.PersistenceRuntimeException;
-import org.cz.security.SecurityDaily;
+import org.cz.json.security.SecurityDaily;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -21,7 +21,7 @@ public class SecurityDailyDaoImpl extends NamedParameterJdbcDaoSupport implement
 	@Override
 	public SecurityDaily getSecurityDaily(final String ticker,final Date date) {
 		
-		Timestamp ts = new Timestamp(date.getTime());
+		final Timestamp ts = new Timestamp(date.getTime());
 		try
 		{
 			final String sql = "SELECT * FROM securitydaily WHERE ticker = ? AND date = ?";
@@ -43,13 +43,23 @@ public class SecurityDailyDaoImpl extends NamedParameterJdbcDaoSupport implement
 	}
 	
 	@Override
-	public List<SecurityDaily> getSecurityDailyForRange(String ticker, Date start, Date end) {
+	public List<SecurityDaily> getSecurityDailyForRange(final String ticker, Date start, Date end) {
 
-		Timestamp ts1 = new Timestamp(start.getTime());
-		Timestamp ts2 = new Timestamp(end.getTime());
+		final Timestamp ts1;
+		final Timestamp ts2;
+		if (start.before(end))
+		{
+			ts1 = new Timestamp(start.getTime());
+			ts2 = new Timestamp(end.getTime());
+		}
+		else
+		{
+			ts2 = new Timestamp(start.getTime());
+			ts1 = new Timestamp(end.getTime());
+		}
 		try
 		{
-			final String sql = "SELECT * FROM securitydaily WHERE ticker=? AND date>=? AND date<=?";
+			final String sql = "SELECT * FROM securitydaily WHERE ticker=? AND date>=? AND date<=? ORDER BY date";
 			List<SecurityDaily> secs = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
 				        public void setValues(PreparedStatement preparedStatement) throws SQLException {
 				        	preparedStatement.setString(1, ticker);
@@ -70,7 +80,7 @@ public class SecurityDailyDaoImpl extends NamedParameterJdbcDaoSupport implement
 	@Override
 	public List<SecurityDaily> getSecurityDailys(final Date date) {
 		
-		Timestamp ts = new Timestamp(date.getTime());
+		final Timestamp ts = new Timestamp(date.getTime());
 		try
 		{
 			final String sql = "SELECT * FROM securitydaily WHERE date = ?";
@@ -95,7 +105,7 @@ public class SecurityDailyDaoImpl extends NamedParameterJdbcDaoSupport implement
 		// delete old 
 		deleteSecurityDaily(securityDaily);
 		
-		Timestamp ts = new Timestamp(securityDaily.getDate().getTime());
+		final Timestamp ts = new Timestamp(securityDaily.getDate().getTime());
 		try
 		{
 			getJdbcTemplate().update("INSERT INTO securityDaily (ticker,date,open,high,low,close,volume) "
@@ -119,9 +129,9 @@ public class SecurityDailyDaoImpl extends NamedParameterJdbcDaoSupport implement
 		}	
 	}
 
-	private void deleteSecurityDaily(SecurityDaily securityDaily){
+	private void deleteSecurityDaily(final SecurityDaily securityDaily){
 		
-		Timestamp ts = new Timestamp(securityDaily.getDate().getTime());
+		final Timestamp ts = new Timestamp(securityDaily.getDate().getTime());
 		try
 		{
 			getJdbcTemplate().update("DELETE FROM securitydaily WHERE ticker = ? AND date = ?"

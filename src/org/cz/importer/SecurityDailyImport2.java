@@ -37,8 +37,8 @@ public class SecurityDailyImport2 {
 		GregorianCalendar gc = new GregorianCalendar();
 		gc.clear();
 		gc.set(Integer.parseInt("20"+toks[2]), 
-				Integer.parseInt(toks[1])-1,
-				Integer.parseInt(toks[0]));
+				Integer.parseInt(toks[0])-1,
+				Integer.parseInt(toks[1]));
 		setDate(gc.getTime());
 	}
 	

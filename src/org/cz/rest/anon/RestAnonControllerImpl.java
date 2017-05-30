@@ -41,6 +41,25 @@ public class RestAnonControllerImpl implements RestAnonController{
 	}
 	
 	@Override
+	@RequestMapping(value = "/searchSecurities")
+	// CzResultJson contains List<Security> if success, message if fail
+	public CzResultJson searchSecurities(final String searchTerm)
+	{
+		log.info("Got /searchSecurities");
+		CzResultJson result = new CzResultJson();
+		
+		try
+		{
+			result.success(services.getHome().searchSecuritys(searchTerm));
+		}
+		catch (Exception e)
+		{
+			result.fail(e.getMessage());
+		}
+		return result;
+	}
+	
+	@Override
 	@RequestMapping(value = "/getSecurityDailyForRange")
 	// CzResultJson contains List<SecurityDaily> if success, message if fail
 	public CzResultJson getSecurityDailyForRange(final String ticker,final Date start,final Date end)

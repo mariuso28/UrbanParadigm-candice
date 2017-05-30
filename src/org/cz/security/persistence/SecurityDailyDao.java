@@ -3,7 +3,7 @@ package org.cz.security.persistence;
 import java.util.Date;
 import java.util.List;
 
-import org.cz.security.SecurityDaily;
+import org.cz.json.security.SecurityDaily;
 
 public interface SecurityDailyDao {
 	

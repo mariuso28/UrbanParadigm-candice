@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.cz.home.Home;
-import org.cz.security.Security;
-import org.cz.security.SecurityDaily;
+import org.cz.json.security.Security;
+import org.cz.json.security.SecurityDaily;
 import org.cz.security.persistence.SecurityDailyDao;
 import org.cz.security.persistence.SecurityDao;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
@@ -38,6 +38,12 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 	public List<Security> getSecuritys()
 	{
 		return securityDao.getSecuritys();
+	}
+	
+
+	@Override
+	public List<Security> searchSecuritys(String searchTerm) {
+		return securityDao.searchSecuritys(searchTerm);
 	}
 	
 	@Override
@@ -85,6 +91,7 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 	public void setSecurityDao(SecurityDao securityDao) {
 		this.securityDao = securityDao;
 	}
+
 
 	
 }
