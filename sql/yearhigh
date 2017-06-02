@@ -1,0 +1,4 @@
+select high,ticker,date from securitydaily as sd 
+join (select max(high) as max,ticker as t1 from securitydaily where date<'2016-05-29 00:00:00' and date>='2015-05-29 00:00:00' group by ticker) as s1
+on sd.ticker = s1.t1
+where sd.high > s1.max and sd.date = '2016-05-30 00:00:00' 

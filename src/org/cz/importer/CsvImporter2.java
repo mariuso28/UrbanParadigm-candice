@@ -24,6 +24,8 @@ public class CsvImporter2 {
 	private String path;
 	private String gotToWeb;
 	private Home home;
+	private static int fileNum;
+	private static int currentFile;
 	
 	public CsvImporter2(Home home, String path,String goToWeb)
 	{
@@ -51,6 +53,10 @@ public class CsvImporter2 {
 	private void setHome(Home home) {
 		this.home = home;
 	}
+	
+	public int getFileNum() {
+		return fileNum;
+	}
 
 	public void read() throws IOException
 	{
@@ -66,7 +72,7 @@ public class CsvImporter2 {
 	public void readSecurities() throws IOException
 	{
 		CSVReader reader = new CSVReader(new FileReader(path));
-		log.info("Importing securityDailys from : " + path);
+		log.info("Importing securityDailys from : " + path + "  file#: " + currentFile + " of: " + fileNum);
 		
 		CsvToBean<SecurityDailyImport2> csvToBean = new CsvToBean<SecurityDailyImport2>();
 
@@ -89,9 +95,19 @@ public class CsvImporter2 {
 	    String[] columns = new String[] {"code", "d", "dateString", "open", "high", "low", "close", "vol", "end"}; 
 	    strategy.setColumnMapping(columns);
 	    strategy.setType(SecurityDailyImport2.class);
-		
-		List<SecurityDailyImport2> list = csvToBean.parse(strategy, reader);
-	    reader.close();
+	    List<SecurityDailyImport2> list;
+	    
+	    try
+	    {
+			list = csvToBean.parse(strategy, reader);
+		    reader.close();
+	    }
+	    catch (Exception e)
+	    {
+	    	log.error("Error parsing : " + path + " file ignored");
+	    	reader.close();
+	    	return;
+	    }
 	    
 	    int cnt=0;
 	    
@@ -100,7 +116,7 @@ public class CsvImporter2 {
 	    	if (sd.getCode()==null || sd.getCode().isEmpty())
 	    		continue;
 	    	
-	    	log.info(sd);
+	//    	log.info(sd);
 	    	
 	    	Security sec = home.getSecurityByCode(sd.getCode());
 	    	if (sec == null && gotToWeb.equals("on"))
@@ -160,6 +176,8 @@ public class CsvImporter2 {
 	public static void importFilesForFolder(final String folder,final String loaded,String goToWeb,Home home) {
 	    
 		File dir = new File(folder);
+		currentFile = 0;
+		fileNum = dir.listFiles().length;
 		for (final File fileEntry : dir.listFiles()) {
 	        if (!fileEntry.isDirectory()) {
 	            log.info("Importing :" +  fileEntry.getAbsolutePath());

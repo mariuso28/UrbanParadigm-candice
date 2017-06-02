@@ -24,11 +24,15 @@ http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 
+	<bean id="baseUserDao"
+		class="org.cz.user.persistence.BaseUserDaoImpl">
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+	</bean>
+
 	<bean id="securityDao"
 		class="org.cz.security.persistence.SecurityDoaImpl">
 		<property name="jdbcTemplate" ref="jdbcTemplate" />
 	</bean>
-
 
 	<bean id="securityDailyDao"
 		class="org.cz.security.persistence.SecurityDailyDaoImpl">
@@ -38,6 +42,7 @@ http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 	<bean id="home"
 		class="org.cz.home.persistence.HomeImpl"> 
 		<property name="jdbcTemplate" ref="jdbcTemplate" />
+		<property name="baseUserDao" ref="baseUserDao" />
 		<property name="securityDao" ref="securityDao" />
 		<property name="securityDailyDao" ref="securityDailyDao" />
 	</bean>
