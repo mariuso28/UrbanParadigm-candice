@@ -1,7 +1,17 @@
 package org.cz.config.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.log4j.Logger;
+import org.cz.services.CzService;
+import org.cz.user.BaseUser;
 import org.cz.validate.Validator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,8 +21,8 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService{
 
 	private static final Logger log = Logger.getLogger(CustomUserDetailsService.class);
-//	@Autowired
-//	private Dx4Services dx4Services;
+	@Autowired
+	private CzService services;
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -25,13 +35,12 @@ public class CustomUserDetailsService implements UserDetailsService{
 			throw new UsernameNotFoundException("Invalid email: " + email);
 		}
 		
-		/*
-		Dx4SecureUser baseUser;
+		BaseUser baseUser;
 		try
 		{
-			baseUser = dx4Services.getDx4Home().getByUsername(email, Dx4SecureUser.class);
+			baseUser = services.getHome().getBaseUserByEmail(email);
 		}
-		catch (PersistenceRuntimeException | Dx4PersistenceException e)
+		catch (Exception e)
 		{
 			log.error("Error finding User: " + email + " not found");
 			throw new UsernameNotFoundException("Error finding User: " + email);
@@ -45,12 +54,11 @@ public class CustomUserDetailsService implements UserDetailsService{
 		
 		log.info("Using User : " + user.getUsername() + " with authorities :" + authorities);
 		return user;
-		*/
-		return null;
+	
 	}
 
-	/*
-	private Collection<GrantedAuthority> getAuthorities(Dx4SecureUser baseUser) {
+
+	private Collection<GrantedAuthority> getAuthorities(BaseUser baseUser) {
 		// Create a list of grants for this user
 		List<GrantedAuthority> authList = new ArrayList<GrantedAuthority>();
 
@@ -58,5 +66,5 @@ public class CustomUserDetailsService implements UserDetailsService{
 
 		return authList;
 	}
-	*/
+	
 }

@@ -22,7 +22,7 @@ http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 		
 		<import resource="cz-persistence.xml"/>
 				
-		<bean id="services" class="org.cz.services.Service" >
+		<bean id="services" class="org.cz.services.CzService" init-method="initServices" >
 			<property name="transactionManager" ref="transactionManager"/>
 			<property name="home" ref="home" />			<!-- do last -->
 		</bean>

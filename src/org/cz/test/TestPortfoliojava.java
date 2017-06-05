@@ -1,12 +1,10 @@
 package org.cz.test;
 
 import org.apache.log4j.Logger;
-import org.cz.home.Home;
+import org.cz.json.portfolio.PortfolioException;
 import org.cz.json.security.Security;
-import org.cz.portfolio.Portfolio;
-import org.cz.portfolio.PortfolioEntry;
-import org.cz.portfolio.hs.PortfolioEntryHs;
-import org.cz.portfolio.hs.PortfolioEntryHsStatus;
+import org.cz.services.CzService;
+import org.cz.services.PortfolioMgr;
 import org.cz.user.BaseUser;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -15,18 +13,16 @@ public class TestPortfoliojava
 {
 	private static Logger log = Logger.getLogger(TestPortfoliojava.class);
 	
-	private static Portfolio createPortfolio(BaseUser bu,Home home) {
+	private static void createPortfolio(BaseUser bu,CzService service) throws PortfolioException {
+
+	
+		PortfolioMgr portfolioMgr = service.getPortfolioMgr();
+		portfolioMgr.createPortfolio(bu,"Popular","Popular Stocks");
 		
-		Portfolio pf = new Portfolio();
-		pf.setName("Popular");
-		pf.setDescription("Popular Stocks");
-		PortfolioEntry pe = new PortfolioEntry();
-		Security sec = home.getSecurity("CYPARK");
-		pe.setSecurity(sec);
-		PortfolioEntryHs pehs = new PortfolioEntryHs();
-		pehs.setStatus(PortfolioEntryHsStatus.INDAYHIGH);
+		Security sec = service.getHome().getSecurity("CYPARK");
+		portfolioMgr.createWatch(bu.getPortfolios().get("Popular"),sec.getTicker());
 		
-		return pf;
+		
 	}
 	
 	public static void main(String[] args)
@@ -35,14 +31,20 @@ public class TestPortfoliojava
 		ApplicationContext context = new ClassPathXmlApplicationContext(
 				"cz-service.xml");
 
-		Home home = (Home) context.getBean("home");
+		CzService service = (CzService) context.getBean("services");
 		
-		BaseUser bu = home.getBaseUserByEmail("albert@test.com");
+		BaseUser bu = service.getHome().getBaseUserByEmail("albert@test.com");
 		
-		Portfolio ps = createPortfolio(bu,home);
+		try {
+			createPortfolio(bu,service);
+		} catch (PortfolioException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
+		bu = service.getHome().getBaseUserByEmail("albert@test.com");
 		
-		log.info(ps);
+		log.info(bu.getPortfolios());
 	}
 
 

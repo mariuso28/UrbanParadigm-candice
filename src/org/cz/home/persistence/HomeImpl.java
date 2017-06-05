@@ -2,22 +2,23 @@ package org.cz.home.persistence;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.cz.home.Home;
+import org.cz.json.portfolio.Portfolio;
+import org.cz.json.portfolio.PortfolioEntry;
+import org.cz.json.portfolio.PortfolioWatch;
+import org.cz.json.portfolio.hs.PortfolioEntryHs;
 import org.cz.json.security.Security;
 import org.cz.json.security.SecurityDaily;
-import org.cz.portfolio.Portfolio;
-import org.cz.portfolio.PortfolioEntry;
-import org.cz.portfolio.hs.PortfolioEntryHs;
 import org.cz.portfolio.persistence.PortfolioDao;
 import org.cz.security.persistence.SecurityDailyDao;
 import org.cz.security.persistence.SecurityDao;
 import org.cz.user.BaseUser;
 import org.cz.user.persistence.BaseUserDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -85,56 +86,51 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 	}
 	
 	@Override
-	public void storePortfolio(BaseUser baseUser, Portfolio portfolio) throws PersistenceRuntimeException {
+	public void storePortfolio(BaseUser baseUser,Portfolio portfolio)
+	{
 		portfolioDao.storePortfolio(baseUser, portfolio);
 	}
-
+	
 	@Override
-	public void deletePortfolio(Portfolio portfolio) throws PersistenceRuntimeException {
+	public void deletePortfolio(Portfolio portfolio)
+	{
 		portfolioDao.deletePortfolio(portfolio);
 	}
-
+	
 	@Override
-	public List<Portfolio> getPortfolios(BaseUser baseUser) throws PersistenceRuntimeException {
-		 List<Portfolio> pos = portfolioDao.getPortfolios(baseUser);
-		 for (Portfolio p : pos)
-		 {
-			 resolvePortfolioSecurity(p);
-		 }
-		 return pos;
-	}
-
-	private void resolvePortfolioSecurity(Portfolio p) {
-		for (PortfolioEntry pe : p.getEntries().values())
-		{
-			pe.setSecurity(getSecurity(pe.getSecurityTicker()));
-		}
-	}
-
-	@Override
-	public void storePortfolioEntry(Portfolio portfolio, PortfolioEntry entry) {
-		portfolioDao.storePortfolioEntry(portfolio, entry);
-	}
-
-	@Override
-	public void deletePortfolioEntry(PortfolioEntry entry) {
-		portfolioDao.deletePortfolioEntry(entry);
+	public Map<String,Portfolio> getPortfolios(BaseUser baseUser)
+	{
+		return portfolioDao.getPortfolios(baseUser);
 	}
 	
-
 	@Override
-	public void storePortfolioEntryHs(PortfolioEntryHs phs, PortfolioEntry entry) throws DataAccessException {
-		portfolioDao.storePortfolioEntryHs(phs, entry);
+	public void storePortfolioWatch(Portfolio portfolio,PortfolioWatch watch)
+	{
+		portfolioDao.storePortfolioWatch(portfolio, watch);
 	}
-
+	
 	@Override
-	public void updatePortfolioEntryHs(PortfolioEntryHs phs) throws DataAccessException {
+	public void deletePortfolioWatch(PortfolioWatch watch)
+	{
+		portfolioDao.deletePortfolioWatch(watch);
+	}
+	
+	@Override
+	public void storePortfolioEntry(final PortfolioWatch watch,final PortfolioEntry entry)
+	{
+		portfolioDao.storePortfolioEntry(watch, entry);
+	}
+	
+	@Override
+	public void updatePortfolioEntryHs(PortfolioEntryHs phs)
+	{
 		portfolioDao.updatePortfolioEntryHs(phs);
 	}
-
+	
 	@Override
-	public void deletePortfolioEntryHs(PortfolioEntryHs phs) throws DataAccessException {
-		portfolioDao.deletePortfolioEntryHs(phs);
+	public void deletePortfolioEntry(PortfolioEntry entry)
+	{
+		portfolioDao.deletePortfolioEntry(entry);
 	}
 	
 	@Override

@@ -12,16 +12,17 @@ public class OAuth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
 	@Override
     public void configure(HttpSecurity http) throws Exception {
 		http
-			.antMatcher("/cz/api/**")
+			.antMatcher("/api/**")
 			.authorizeRequests()
 			
 			.antMatchers(
-					"/cz/api/anon/**"
+					"/api/anon/**",
+					"/api/a/**"
 					)
 			.permitAll()
 						
 			.anyRequest()
-			.access("hasRole('ROLE_PLAY')");
+			.access("hasRole('ROLE_TRADER')");
 		;
     }
 

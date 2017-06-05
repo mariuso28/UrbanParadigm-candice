@@ -39,12 +39,18 @@ http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 		<property name="jdbcTemplate" ref="jdbcTemplate" />
 	</bean>
 
+	<bean id="portfolioDao"
+		class="org.cz.portfolio.persistence.PortfolioDaoImpl">
+		<property name="jdbcTemplate" ref="jdbcTemplate" />
+	</bean>
+
 	<bean id="home"
 		class="org.cz.home.persistence.HomeImpl"> 
 		<property name="jdbcTemplate" ref="jdbcTemplate" />
 		<property name="baseUserDao" ref="baseUserDao" />
 		<property name="securityDao" ref="securityDao" />
 		<property name="securityDailyDao" ref="securityDailyDao" />
+		<property name="portfolioDao" ref="portfolioDao" />
 	</bean>
 
 

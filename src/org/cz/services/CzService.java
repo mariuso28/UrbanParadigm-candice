@@ -4,14 +4,20 @@ import org.apache.log4j.Logger;
 import org.cz.home.Home;
 import org.springframework.transaction.PlatformTransactionManager;
 
-public class Service {
+public class CzService {
 	@SuppressWarnings("unused")
-	private static final Logger log = Logger.getLogger(Service.class);	
+	private static final Logger log = Logger.getLogger(CzService.class);	
 	private Home home;
 	private PlatformTransactionManager transactionManager;
+	private PortfolioMgr portfolioMgr;
 	
-	public Service()
+	public CzService()
 	{
+	}
+	
+	public void initServices()
+	{
+		portfolioMgr = new PortfolioMgr(home);
 	}
 	
 	public Home getHome() {
@@ -28,6 +34,14 @@ public class Service {
 	
 	public void setTransactionManager(PlatformTransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
+	}
+
+	public PortfolioMgr getPortfolioMgr() {
+		return portfolioMgr;
+	}
+
+	public void setPortfolioMgr(PortfolioMgr portfolioMgr) {
+		this.portfolioMgr = portfolioMgr;
 	}
 	
 	

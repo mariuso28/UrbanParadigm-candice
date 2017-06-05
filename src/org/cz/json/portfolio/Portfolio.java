@@ -1,4 +1,4 @@
-package org.cz.portfolio;
+package org.cz.json.portfolio;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -8,7 +8,7 @@ public class Portfolio {
 	private long id;
 	private String name;
 	private String description;
-	private Map<String,PortfolioEntry> entries = new TreeMap<String,PortfolioEntry>();
+	private Map<String,PortfolioWatch> watchList = new TreeMap<String,PortfolioWatch>();
 	
 	public Portfolio()
 	{
@@ -38,17 +38,19 @@ public class Portfolio {
 		this.description = description;
 	}
 
-	public Map<String, PortfolioEntry> getEntries() {
-		return entries;
+	public Map<String, PortfolioWatch> getWatchList() {
+		return watchList;
 	}
 
-	public void setEntries(Map<String, PortfolioEntry> entries) {
-		this.entries = entries;
+	public void setWatchList(Map<String, PortfolioWatch> watchList) {
+		this.watchList = watchList;
 	}
 
 	@Override
 	public String toString() {
-		return "Portfolio [id=" + id + ", name=" + name + ", description=" + description + ", entries=" + entries + "]";
+		return "Portfolio [id=" + id + ", name=" + name + ", description=" + description + ", watchList=" + watchList
+				+ "]";
 	}
+
 	
 }

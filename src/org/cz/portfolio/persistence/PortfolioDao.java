@@ -1,22 +1,21 @@
 package org.cz.portfolio.persistence;
 
-import java.util.List;
+import java.util.Map;
 
-import org.cz.home.persistence.PersistenceRuntimeException;
-import org.cz.portfolio.Portfolio;
-import org.cz.portfolio.PortfolioEntry;
-import org.cz.portfolio.hs.PortfolioEntryHs;
+import org.cz.json.portfolio.Portfolio;
+import org.cz.json.portfolio.PortfolioEntry;
+import org.cz.json.portfolio.PortfolioWatch;
+import org.cz.json.portfolio.hs.PortfolioEntryHs;
 import org.cz.user.BaseUser;
-import org.springframework.dao.DataAccessException;
 
 public interface PortfolioDao {
 
-	public void storePortfolio(BaseUser baseUser,Portfolio portfolio) throws PersistenceRuntimeException;
-	public void deletePortfolio(Portfolio portfolio) throws PersistenceRuntimeException;
-	public List<Portfolio> getPortfolios(BaseUser baseUser) throws PersistenceRuntimeException;
-	public void storePortfolioEntry(final Portfolio portfolio,PortfolioEntry entry);
-	public void storePortfolioEntryHs(final PortfolioEntryHs phs,final PortfolioEntry entry) throws DataAccessException;
-	public void updatePortfolioEntryHs(final PortfolioEntryHs phs) throws DataAccessException;
-	public void deletePortfolioEntryHs(final PortfolioEntryHs phs) throws DataAccessException;
+	public void storePortfolio(BaseUser baseUser,Portfolio portfolio);
+	public void deletePortfolio(Portfolio portfolio);
+	public Map<String,Portfolio> getPortfolios(BaseUser baseUser);
+	public void storePortfolioWatch(Portfolio portfolio,PortfolioWatch watch);
+	public void deletePortfolioWatch(PortfolioWatch watch);
+	public void storePortfolioEntry(final PortfolioWatch watch,final PortfolioEntry entry);
+	public void updatePortfolioEntryHs(PortfolioEntryHs phs);
 	public void deletePortfolioEntry(PortfolioEntry entry);
 }

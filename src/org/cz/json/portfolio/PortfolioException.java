@@ -1,4 +1,4 @@
-package org.cz.portfolio;
+package org.cz.json.portfolio;
 
 public class PortfolioException extends Exception {
 

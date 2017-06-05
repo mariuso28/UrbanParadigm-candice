@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.cz.json.message.CzResultJson;
-import org.cz.services.Service;
+import org.cz.services.CzService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +18,7 @@ public class RestAnonControllerImpl implements RestAnonController{
 	private static final Logger log = Logger.getLogger(RestAnonControllerImpl.class);
 	
 	@Autowired
-	private Service services;
+	private CzService services;
 
 	
 	@Override

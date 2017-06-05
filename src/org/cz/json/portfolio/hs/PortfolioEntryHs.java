@@ -1,25 +1,24 @@
-package org.cz.portfolio.hs;
+package org.cz.json.portfolio.hs;
 
-public class PortfolioEntryHs 
+import org.cz.json.portfolio.PortfolioEntry;
+import org.cz.json.portfolio.PortfolioEntryType;
+
+public class PortfolioEntryHs extends PortfolioEntry
 {
-	private long id;
 	private PortfolioHsStatus status;
 	private int dayCount;
 	private double ceiling;
 	
 	public PortfolioEntryHs()
 	{
+	}
+	
+	public PortfolioEntryHs(String securityTicker)
+	{
+		super(PortfolioEntryType.HockeyStick,securityTicker);
 		status = PortfolioHsStatus.SEEK;
 	}
 	
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
 	public PortfolioHsStatus getStatus() {
 		return status;
 	}

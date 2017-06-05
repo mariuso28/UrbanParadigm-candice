@@ -1,10 +1,11 @@
 package org.cz.user;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 
-import org.cz.portfolio.Portfolio;
+import org.cz.json.message.CzBaseUserProfileJson;
+import org.cz.json.portfolio.Portfolio;
 
 public class BaseUser 
 {
@@ -16,7 +17,7 @@ public class BaseUser
 	private boolean enabled;
 	private Role role;
 	private String icon;
-	private List<Portfolio> portfolios = new ArrayList<Portfolio>();
+	private Map<String,Portfolio> portfolios = new TreeMap<String,Portfolio>();
 	
 	public BaseUser()
 	{
@@ -29,6 +30,17 @@ public class BaseUser
 		setEnabled(true);
 	}
 
+	public CzBaseUserProfileJson createCzBaseUserProfileJson()
+	{
+		CzBaseUserProfileJson pj = new CzBaseUserProfileJson();
+		pj.setContact(contact);
+		pj.setEmail(email);
+		pj.setIcon(icon);
+		pj.setPhone(phone);
+		pj.setRole(role);
+		return pj;
+	}
+	
 	public UUID getId() {
 		return id;
 	}
@@ -93,11 +105,11 @@ public class BaseUser
 		this.icon = icon;
 	}
 	
-	public List<Portfolio> getPortfolios() {
+	public Map<String, Portfolio> getPortfolios() {
 		return portfolios;
 	}
 
-	public void setPortfolios(List<Portfolio> portfolios) {
+	public void setPortfolios(Map<String, Portfolio> portfolios) {
 		this.portfolios = portfolios;
 	}
 
