@@ -3,6 +3,7 @@ package org.cz.portfolio.persistence;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -315,6 +316,29 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 			    	  	ps.setLong(1, entry.getId());
 			      }
 			    });
+		}
+		catch (DataAccessException e)
+		{
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}	
+	}
+
+	@Override
+	public void setUpdated(final Portfolio portfolio) {
+		
+		final Timestamp ts = new Timestamp(portfolio.getUpdated().getTime());
+		final String sql = "UPDATE portfolio SET updated=? WHERE id = ?";
+		
+		try
+		{
+			getJdbcTemplate().update(sql
+				, new PreparedStatementSetter() {
+				public void setValues(PreparedStatement ps) throws SQLException {
+					ps.setTimestamp(1, ts);
+					ps.setLong(2, portfolio.getId());
+				}
+				});
 		}
 		catch (DataAccessException e)
 		{

@@ -3,12 +3,15 @@ package org.cz.security.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.cz.home.persistence.PersistenceRuntimeException;
 import org.cz.json.security.SecurityDaily;
+import org.cz.json.security.YearHigh;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -97,6 +100,22 @@ public class SecurityDailyDaoImpl extends NamedParameterJdbcDaoSupport implement
 			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
 		}
 	}
+	
+	@Override
+	public List<SecurityDaily> getLastSecurityDailys() {
+		
+		try
+		{
+			final String sql = "SELECT * FROM securitydaily WHERE date = (select max(date) from securitydaily)";
+			List<SecurityDaily> secs = getJdbcTemplate().query(sql,BeanPropertyRowMapper.newInstance(SecurityDaily.class));
+			return secs;
+		}
+		catch (DataAccessException e)
+		{
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}
+	}
 
 	@Override
 	public void storeSecurityDaily(final SecurityDaily securityDaily){
@@ -147,6 +166,85 @@ public class SecurityDailyDaoImpl extends NamedParameterJdbcDaoSupport implement
 			log.error("Could not execute : " + e.getMessage());
 			throw new PersistenceRuntimeException(e.getMessage());
 		}		
+	}
+
+	@Override
+	public List<YearHigh> getYearHighs(Date date, Date date2) {
+		
+		final Timestamp ts1 = new Timestamp(date.getTime());
+		final Timestamp ts2 = new Timestamp(date2.getTime());
+		
+		try
+		{
+			final String sql = "SELECT * FROM yearhigh WHERE date = ? AND date2 = ?";
+			List<YearHigh> yhs = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
+				        public void setValues(PreparedStatement preparedStatement) throws SQLException {
+				        	preparedStatement.setTimestamp(1, ts1);
+				        	preparedStatement.setTimestamp(2, ts2);
+				        }
+				      }, BeanPropertyRowMapper.newInstance(YearHigh.class));
+			if (!yhs.isEmpty())
+				return yhs;
+			
+			GregorianCalendar gc = new GregorianCalendar();
+			gc.setTime(date);
+			gc.add(Calendar.DAY_OF_YEAR, -1);
+			final Timestamp ts3 = new Timestamp(gc.getTime().getTime());
+			
+			final String sql2 = "select high as high,ticker,date,s1.avg as avg,s1.sd as stddev from securitydaily as sd " +
+					"join (select max(high) as max,ticker as t1,avg(high) as avg,stddev(high) as sd from securitydaily " +
+					" where date<? and date>=? group by ticker) as s1 on sd.ticker = s1.t1 " +
+					" where sd.high > s1.max and sd.date = ?"; 
+			
+		//	log.info(sql2);
+			yhs = getJdbcTemplate().query(sql2,new PreparedStatementSetter() {
+		        public void setValues(PreparedStatement preparedStatement) throws SQLException {
+		        	preparedStatement.setTimestamp(1, ts3);
+		        	preparedStatement.setTimestamp(2, ts2);
+		        	preparedStatement.setTimestamp(3, ts1);
+		        }
+		      }, BeanPropertyRowMapper.newInstance(YearHigh.class));
+			
+			
+			storeYearHighs(yhs, date2);
+			return yhs;
+		}
+		catch (DataAccessException e)
+		{
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}
+	}
+
+	private void storeYearHighs(List<YearHigh> yhs,Date date2) {
+		for (final YearHigh yh : yhs)
+		{
+			yh.setDate2(date2);
+			final Timestamp ts1 = new Timestamp(yh.getDate().getTime());
+			final Timestamp ts2 = new Timestamp(yh.getDate2().getTime());
+			
+	//		log.info("Storing : " + yh);
+			try
+			{
+				getJdbcTemplate().update("INSERT INTO yearhigh (ticker,date,date2,high,avg,stddev) "
+						+ "VALUES( ?, ?, ?, ?, ?, ?)"
+				        , new PreparedStatementSetter() {
+				      public void setValues(PreparedStatement psSd) throws SQLException {
+				    	  	psSd.setString(1,yh.getTicker());
+							psSd.setTimestamp(2,ts1);
+							psSd.setTimestamp(3,ts2);
+							psSd.setDouble(4,yh.getHigh());
+							psSd.setDouble(5,yh.getAvg());
+							psSd.setDouble(6,yh.getStddev());
+				      }
+				    });
+			}
+			catch (Exception e)
+			{
+				log.error("Could not execute : " + e.getMessage());
+				throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+			}	
+		}
 	}
 
 

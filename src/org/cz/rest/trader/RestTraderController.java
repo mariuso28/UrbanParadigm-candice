@@ -1,5 +1,7 @@
 package org.cz.rest.trader;
 
+import java.util.Date;
+
 import org.cz.json.message.CzResultJson;
 import org.cz.json.portfolio.PortfolioEntryType;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -41,4 +43,12 @@ public interface RestTraderController {
 	// CzResultJson contains refreshed portfolio if success, message if fail
 	public CzResultJson deletePortfolioEntry(OAuth2Authentication auth,@RequestParam("portfolioName") String portfolioName,
 			@RequestParam("ticker") String ticker,@RequestParam("entryId") long entryId);
+	
+	@RequestMapping(value = "/getYearHighs")
+	// CzResultJson contains Map<String,YearHigh> if success, message if fail
+	public CzResultJson getYearHighs(OAuth2Authentication auth,@RequestParam("date") Date date);
+	
+	@RequestMapping(value = "/getYearHighsStr")
+	// CzResultJson contains Map<String,YearHigh> if success, message if fail
+	public CzResultJson getYearHighsStr(OAuth2Authentication auth,@RequestParam("dateStr") String dateStr);
 }

@@ -18,4 +18,5 @@ public interface PortfolioDao {
 	public void storePortfolioEntry(final PortfolioWatch watch,final PortfolioEntry entry);
 	public void updatePortfolioEntryHs(PortfolioEntryHs phs);
 	public void deletePortfolioEntry(PortfolioEntry entry);
+	public void setUpdated(Portfolio portfolio);
 }

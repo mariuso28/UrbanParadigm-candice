@@ -1,5 +1,6 @@
 package org.cz.json.portfolio;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -8,6 +9,7 @@ public class Portfolio {
 	private long id;
 	private String name;
 	private String description;
+	private Date updated;
 	private Map<String,PortfolioWatch> watchList = new TreeMap<String,PortfolioWatch>();
 	
 	public Portfolio()
@@ -44,6 +46,14 @@ public class Portfolio {
 
 	public void setWatchList(Map<String, PortfolioWatch> watchList) {
 		this.watchList = watchList;
+	}
+	
+	public Date getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(Date updated) {
+		this.updated = updated;
 	}
 
 	@Override

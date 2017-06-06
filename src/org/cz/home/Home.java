@@ -12,6 +12,7 @@ import org.cz.json.portfolio.PortfolioWatch;
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
 import org.cz.json.security.Security;
 import org.cz.json.security.SecurityDaily;
+import org.cz.json.security.YearHigh;
 import org.cz.user.BaseUser;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +24,7 @@ public interface Home {
 	public void storeImage(String email,MultipartFile data, String contentType) throws PersistenceRuntimeException;
 	public byte[] getImage(final String email) throws PersistenceRuntimeException;
 	public String getEmailForId(UUID id) throws PersistenceRuntimeException;
+	public List<BaseUser> getActiveBaseUsers() throws PersistenceRuntimeException;
 	public void setDefaultPasswordForAll(String encoded);
 	
 	public void storePortfolio(BaseUser baseUser,Portfolio portfolio);
@@ -33,6 +35,7 @@ public interface Home {
 	public void storePortfolioEntry(final PortfolioWatch watch,final PortfolioEntry entry);
 	public void updatePortfolioEntryHs(PortfolioEntryHs phs);
 	public void deletePortfolioEntry(PortfolioEntry entry);
+	public void setUpdated(Portfolio portfolio);
 	
 	public Security getSecurity(final String ticker);
 	public Security getSecurityByCode(final String code);
@@ -42,7 +45,9 @@ public interface Home {
 	
 	public SecurityDaily getSecurityDaily(final String ticker,final Date date);
 	public List<SecurityDaily> getSecurityDailys(final Date date);
+	public List<SecurityDaily> getLastSecurityDailys();
 	public List<SecurityDaily> getSecurityDailyForRange(final String ticker,final Date start,final Date end);
 	public void storeSecurityDaily(final SecurityDaily securityDaily);
+	public Map<String,YearHigh> getYearHighs(Date date,Date date2);	
 		
 }

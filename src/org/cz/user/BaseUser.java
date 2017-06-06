@@ -37,7 +37,7 @@ public class BaseUser
 		pj.setEmail(email);
 		pj.setIcon(icon);
 		pj.setPhone(phone);
-		pj.setRole(role);
+		pj.setRole(role.name());
 		return pj;
 	}
 	

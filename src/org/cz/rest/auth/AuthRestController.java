@@ -59,7 +59,7 @@ public class AuthRestController {
 		catch(HttpClientErrorException e){
 			e.printStackTrace();
 			if (e.getStatusCode().equals(HttpStatus.UNAUTHORIZED)){
-				result.setMessage("username or password incorrect");
+				result.fail("username or password incorrect");
 			}
 		}
 		catch(Exception e){

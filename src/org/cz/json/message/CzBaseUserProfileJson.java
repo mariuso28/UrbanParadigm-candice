@@ -1,14 +1,12 @@
 package org.cz.json.message;
 
-import org.cz.user.Role;
-
 public class CzBaseUserProfileJson {
 
 	private String contact;
 	private String email;
 	private String phone;
 	private String password;
-	private Role role;
+	private String role;
 	private String icon;
 	
 	public CzBaseUserProfileJson()
@@ -47,11 +45,11 @@ public class CzBaseUserProfileJson {
 		this.password = password;
 	}
 
-	public Role getRole() {
+	public String getRole() {
 		return role;
 	}
 
-	public void setRole(Role role) {
+	public void setRole(String role) {
 		this.role = role;
 	}
 

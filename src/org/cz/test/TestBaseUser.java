@@ -11,6 +11,7 @@ public class TestBaseUser
 {
 	private static Logger log = Logger.getLogger(TestBaseUser.class);
 	
+	@SuppressWarnings("unused")
 	private static BaseUser createBaseUser1()
 	{
 		BaseUser bu = new BaseUser();
@@ -24,6 +25,19 @@ public class TestBaseUser
 		return bu;
 	}
 	
+	private static BaseUser createBaseUser2()
+	{
+		BaseUser bu = new BaseUser();
+		bu.setContact("pmk");
+		bu.setEmail("pmk@test.com");
+		bu.setEnabled(true);
+		bu.setIcon("");
+		bu.setPassword("88888888");
+		bu.setPhone("0102202005");
+		bu.setRole(Role.ROLE_ADMIN);
+		return bu;
+	}
+	
 	public static void main(String[] args)
 	{
 		@SuppressWarnings("resource")
@@ -31,10 +45,10 @@ public class TestBaseUser
 				"cz-service.xml");
 
 		Home home = (Home) context.getBean("home");
-		BaseUser bu = createBaseUser1();
+		BaseUser bu = createBaseUser2();
 		home.storeBaseUser(bu);
 		
-		bu = home.getBaseUserByEmail("albert@test.com");
+		bu = home.getBaseUserByEmail("pmk@test.com");
 		
 		log.info(bu);
 	}

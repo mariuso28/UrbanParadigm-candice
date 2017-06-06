@@ -1,5 +1,12 @@
 package org.cz.services;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
 import org.cz.home.Home;
 import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntry;
@@ -8,10 +15,16 @@ import org.cz.json.portfolio.PortfolioException;
 import org.cz.json.portfolio.PortfolioWatch;
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
 import org.cz.json.portfolio.hs.PortfolioHsStatus;
+import org.cz.json.security.SecurityDaily;
+import org.cz.json.security.YearHigh;
 import org.cz.user.BaseUser;
+import org.cz.util.DateUtil;
 
 public class PortfolioMgr {
 
+	private static final Logger log = Logger.getLogger(PortfolioMgr.class);
+	private Map<String,YearHigh> yearHighs;
+	private Date today;
 	private Home home;
 	
 	public PortfolioMgr(Home home)
@@ -107,6 +120,76 @@ public class PortfolioMgr {
 			target.setStatus(newStatus);
 		}
 		home.updatePortfolioEntryHs(target);
+	}
+
+	public void updatePortfolios() throws PortfolioException
+	{
+		GregorianCalendar gc = new GregorianCalendar();
+		today = DateUtil.getNowWithZeroedTime();
+		gc.setTime(today);
+		gc.add(Calendar.DAY_OF_YEAR, -1);
+		yearHighs = home.getYearHighs(today, gc.getTime());
+		
+		List<BaseUser> bus = home.getActiveBaseUsers();
+		for (BaseUser bu : bus)
+			updatePortfolios(bu);
+	}
+	
+	private void updatePortfolios(BaseUser bu) throws PortfolioException {
+		for (Portfolio port : bu.getPortfolios().values())
+		{
+			updatePortfolio(port);
+		}
+	}
+
+	private void updatePortfolio(Portfolio port) throws PortfolioException {
+		
+		for (PortfolioWatch pw : port.getWatchList().values())
+		{
+			for (PortfolioEntry pe : pw.getEntries())
+			{
+				updatePortfolioEntry(pe,port);
+			}
+		}
+			
+		home.setUpdated(port);
+	}
+
+	private void updatePortfolioEntry(PortfolioEntry pe,Portfolio portfolio) throws PortfolioException {
+		if (pe.getType().equals(PortfolioEntryType.HockeyStick))
+		{
+			PortfolioEntryHs peh = (PortfolioEntryHs) pe;
+			if (peh.getStatus().equals(PortfolioHsStatus.SEEK))
+			{
+				YearHigh yh = yearHighs.get(pe.getSecurityTicker()); 
+				if (yh!=null)
+				{
+					changeHsStatusForSecurity(portfolio,peh,PortfolioHsStatus.HITYEARHIGH,yh.getHigh());
+				}
+			}
+			else
+			if (peh.getStatus().equals(PortfolioHsStatus.HITYEARHIGH))
+			{	
+				peh.setDayCount(peh.getDayCount()+1);
+				SecurityDaily sd = home.getSecurityDaily(peh.getSecurityTicker(), today);
+				if ((peh.getCeiling()*0.95) < sd.getHigh())
+					changeHsStatusForSecurity(portfolio,peh,PortfolioHsStatus.SEEK,0.0);
+				else
+				{
+					if (peh.getDayCount() > 3)
+						changeHsStatusForSecurity(portfolio,peh,PortfolioHsStatus.BUY,sd.getClose());
+				}
+			}
+			else
+			if (peh.getStatus().equals(PortfolioHsStatus.HOLD))
+			{
+				SecurityDaily sd = home.getSecurityDaily(peh.getSecurityTicker(), today);
+				if ((peh.getCeiling()*0.95) < sd.getHigh())
+					changeHsStatusForSecurity(portfolio,peh,PortfolioHsStatus.SELL,sd.getClose());
+			}
+		}
+		else
+			log.error("Invalid portfolio entry type - ignored : " + pe.getType());
 	}
 
 	public Home getHome() {

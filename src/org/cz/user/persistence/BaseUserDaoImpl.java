@@ -123,7 +123,22 @@ public class BaseUserDaoImpl extends NamedParameterJdbcDaoSupport implements Bas
 		}
 	}
 	
-
+	@Override
+	public List<BaseUser> getActiveBaseUsers() throws PersistenceRuntimeException 
+	{	
+		try
+		{
+			final String sql = "SELECT id,email,password,enabled,icon,contact,phone,role FROM baseUser WHERE enable=true";
+			List<BaseUser> bus = getJdbcTemplate().query(sql, BeanPropertyRowMapper.newInstance(BaseUser.class));
+			return bus;
+		}
+		catch (DataAccessException e)
+		{
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}
+	}
+	
 	@Override
 	public void storeImage(final String email, MultipartFile data, final String contentType) throws PersistenceRuntimeException {
 		

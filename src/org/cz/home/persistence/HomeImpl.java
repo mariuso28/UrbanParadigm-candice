@@ -3,6 +3,7 @@ package org.cz.home.persistence;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -13,6 +14,7 @@ import org.cz.json.portfolio.PortfolioWatch;
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
 import org.cz.json.security.Security;
 import org.cz.json.security.SecurityDaily;
+import org.cz.json.security.YearHigh;
 import org.cz.portfolio.persistence.PortfolioDao;
 import org.cz.security.persistence.SecurityDailyDao;
 import org.cz.security.persistence.SecurityDao;
@@ -53,6 +55,16 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 		BaseUser bu = baseUserDao.getBaseUserByEmail(email);
 		bu.setPortfolios(getPortfolios(bu));
 		return bu;
+	}
+	
+	public List<BaseUser> getActiveBaseUsers() throws PersistenceRuntimeException 
+	{
+		 List<BaseUser> bus = baseUserDao.getActiveBaseUsers();
+		 for (BaseUser bu : bus)
+		 {
+			 bu.setPortfolios(getPortfolios(bu));
+		 }
+		 return bus;
 	}
 	
 	@Override
@@ -134,6 +146,12 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 	}
 	
 	@Override
+	public void setUpdated(Portfolio portfolio)
+	{
+		portfolioDao.setUpdated(portfolio);
+	}
+	
+	@Override
 	public Security getSecurity(final String ticker)
 	{
 		return securityDao.getSecurity(ticker);
@@ -175,6 +193,22 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 		return securityDailyDao.getSecurityDailys(date);
 	}
 
+	@Override
+	public List<SecurityDaily> getLastSecurityDailys()
+	{
+		return securityDailyDao.getLastSecurityDailys();
+	}
+	
+	@Override
+	public Map<String,YearHigh> getYearHighs(Date date,Date date2)
+	{
+		List<YearHigh> yhs = securityDailyDao.getYearHighs(date, date2);
+		Map<String,YearHigh> map = new TreeMap<String,YearHigh>();
+		for (YearHigh yh : yhs)
+			map.put(yh.getTicker(),yh);
+		return map;
+	}
+	
 	@Override
 	public List<SecurityDaily> getSecurityDailyForRange(final String ticker,final Date start,final Date end)
 	{
