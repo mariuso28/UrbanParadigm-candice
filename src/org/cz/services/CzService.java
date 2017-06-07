@@ -30,7 +30,7 @@ public class CzService {
 	public void initServices()
 	{
 		portfolioMgr = new PortfolioMgr(home);
-		scheduleUpdateDailySecurities();
+//		scheduleUpdateDailySecurities();
 	}
 	
 	private void scheduleUpdateDailySecurities() 

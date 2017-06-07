@@ -72,7 +72,8 @@ public class CsvImporter2 {
 	public void readSecurities() throws IOException
 	{
 		CSVReader reader = new CSVReader(new FileReader(path));
-		log.info("Importing securityDailys from : " + path + "  file#: " + currentFile + " of: " + fileNum);
+		currentFile++;
+		log.info("$$$ Importing securityDailys from : " + path + "  file#: " + currentFile + " of: " + fileNum);
 		
 		CsvToBean<SecurityDailyImport2> csvToBean = new CsvToBean<SecurityDailyImport2>();
 
