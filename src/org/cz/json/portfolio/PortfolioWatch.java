@@ -30,11 +30,11 @@ public class PortfolioWatch {
 		
 	public PortfolioEntry createPortfolioEntry(PortfolioEntryType type)
 	{
-		PortfolioEntry pe;
+		PortfolioEntry pe = null;
 		if (type.equals(PortfolioEntryType.HockeyStick))
-			pe = new PortfolioEntryHs();
+			pe = new PortfolioEntryHs(this.getTicker());
 		else
-			pe = new PortfolioEntry();
+			pe = new PortfolioEntry(null,this.getTicker());
 
 		entries.add(pe);
 		return pe;
@@ -48,10 +48,11 @@ public class PortfolioWatch {
 		this.ticker = ticker;
 	}
 	
+
 	public List<PortfolioEntry> getEntries() {
 		return entries;
 	}
-	
+
 	public void setEntries(List<PortfolioEntry> entries) {
 		this.entries = entries;
 	}

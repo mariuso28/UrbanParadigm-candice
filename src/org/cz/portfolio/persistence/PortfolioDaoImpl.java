@@ -192,7 +192,9 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 			for (PortfolioEntry port : ports)
 			{
 				if (port.getType().equals(PortfolioEntryType.HockeyStick))
+				{
 					port = getPortfolioEntryHss(port);
+				}
 				watch.getEntries().add(port);
 			}
 		}
@@ -226,7 +228,7 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 		try
 		{
 			KeyHolder keyHolder = new GeneratedKeyHolder();
-			final String sql = "INSERT INTO portfolioentry (portfoliowatchid,securityticker) VALUES (?,?)";
+			final String sql = "INSERT INTO portfolioentry (portfoliowatchid,securityticker,type) VALUES (?,?,?)";
 			getJdbcTemplate().update(
 			    new PreparedStatementCreator() {
 			        public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -234,6 +236,7 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 			                connection.prepareStatement(sql, new String[] {"id"});
 			            ps.setLong(1, watch.getId());
 						ps.setString(2, entry.getSecurityTicker());
+						ps.setString(3, entry.getType().name());
 			            return ps;
 			        }
 			    },

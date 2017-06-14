@@ -8,11 +8,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.log4j.Logger;
-import org.cz.importer.CsvImporter2;
 
 public class MoveFile
 {
-	private static Logger log = Logger.getLogger(CsvImporter2.class);
+	private static Logger log = Logger.getLogger(MoveFile.class);
 	
     public static void move(String source,String dest)
     {

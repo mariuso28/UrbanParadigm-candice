@@ -5,6 +5,7 @@ import org.cz.json.portfolio.PortfolioEntryType;
 
 public class PortfolioEntryHs extends PortfolioEntry
 {
+	private String portfolioEntryHsUnique = PortfolioEntryHs.class.getName();
 	private PortfolioHsStatus status;
 	private int dayCount;
 	private double ceiling;
@@ -41,6 +42,14 @@ public class PortfolioEntryHs extends PortfolioEntry
 
 	public void setCeiling(double ceiling) {
 		this.ceiling = ceiling;
+	}
+
+	public String getPortfolioEntryHsUnique() {
+		return portfolioEntryHsUnique;
+	}
+
+	public void setPortfolioEntryHsUnique(String portfolioEntryHsUnique) {
+		this.portfolioEntryHsUnique = portfolioEntryHsUnique;
 	}
 
 }
