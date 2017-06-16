@@ -1,38 +1,38 @@
 package org.cz.json.portfolio;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
 
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.StdNodeBasedDeserializer;
 
-public class PortfolioEntryDeserializer extends JsonDeserializer<PortfolioEntry> {
+public class PortfolioEntryDeserializer extends StdNodeBasedDeserializer<PortfolioEntry> {
 
-	@Override
-	public PortfolioEntry deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-		JsonNode jsonNode = p.readValueAsTree(); 
-	    Iterator<Map.Entry<String, JsonNode>> ite = jsonNode.fields();
-	    boolean isSubclass = false;
-	    while (ite.hasNext()) {
-	        Map.Entry<String, JsonNode> entry = ite.next();
-	        // **Check if it contains field name unique to subclass**
-	        if (entry.getKey().equalsIgnoreCase("portfolioEntryHsUnique")) {
-	            isSubclass = true;
-	            break;
-	        }
-	    }
-	    if (isSubclass) {
-	        return new ObjectMapper().treeToValue(jsonNode, PortfolioEntryHs.class);
-	    } else {
-	    	return new ObjectMapper().treeToValue(jsonNode, PortfolioEntry.class);
-	    }
+	private static final long serialVersionUID = 1L;
+
+	protected PortfolioEntryDeserializer() {
+		super(PortfolioEntry.class);
 	}
-
+	
+	@Override
+	public PortfolioEntry convert(JsonNode root, DeserializationContext ctxt) throws IOException {
+		java.lang.reflect.Type targetType;
+	    if (root.has("portfolioEntryHsUnique")) {
+	        targetType = PortfolioEntryHs.class;
+	    } else {
+	        targetType = PortfolioEntry.class;
+	    }
+	    
+		JavaType jacksonType = ctxt.getTypeFactory().constructType(targetType);
+	    JsonDeserializer<?> deserializer = ctxt.findRootValueDeserializer(jacksonType);
+	    JsonParser nodeParser = root.traverse(ctxt.getParser().getCodec());
+	    nodeParser.nextToken();
+	    return (PortfolioEntry) deserializer.deserialize(nodeParser, ctxt);
+	}
+	
 }

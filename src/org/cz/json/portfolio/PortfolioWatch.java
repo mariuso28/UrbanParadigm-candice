@@ -9,7 +9,7 @@ public class PortfolioWatch {
 
 	private long id;
 	private String ticker;
-	private List<PortfolioEntry> entries = new ArrayList<PortfolioEntry>();
+	private List<PortfolioEntryI> entries = new ArrayList<PortfolioEntryI>();
 	
 	public PortfolioWatch()
 	{
@@ -22,9 +22,12 @@ public class PortfolioWatch {
 	
 	public PortfolioEntry getEntryById(long id)
 	{
-		for (PortfolioEntry pe : entries)
+		for (PortfolioEntryI pei : entries)
+		{
+			PortfolioEntry pe = (PortfolioEntry) pei;
 			if (pe.getId()==id)
 				return pe;
+		}
 		return null;
 	}
 		
@@ -49,11 +52,11 @@ public class PortfolioWatch {
 	}
 	
 
-	public List<PortfolioEntry> getEntries() {
+	public List<PortfolioEntryI> getEntries() {
 		return entries;
 	}
 
-	public void setEntries(List<PortfolioEntry> entries) {
+	public void setEntries(List<PortfolioEntryI> entries) {
 		this.entries = entries;
 	}
 

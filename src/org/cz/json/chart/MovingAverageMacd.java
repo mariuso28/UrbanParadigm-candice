@@ -64,15 +64,19 @@ public class MovingAverageMacd {
 		{
 			entries.get(i).setMacd12(mv12.getEntries().get(i).getEma());
 		}
+		
+		MovingAverage mv9 = MovingAverage.createMovingAverage(sdList,macd9);
+		for (int i=macd26; i<sdList.size(); i++)
+		{
+			entries.get(i).setMacd9(mv9.getEntries().get(i).getEma());
+		}
 	}
 
 	private void calcMacdHistogram() {
 		
-		int last = entries.size()-1;
-		while (entries.get(last)!=null)
+		for (int i=macd26+macd9+1; i<entries.size(); i++)
 		{
-			entries.get(last).calcMacdHistogram();
-			last--;
+			entries.get(i).calcMacdHistogram();
 		}
 	}
 
@@ -83,12 +87,11 @@ public class MovingAverageMacd {
 	
 	private void calcEmas()
 	{
-		double multiplier = 2 / ((macd9 + 1) * 1.0);
 		double lastEma = calcSma(macd26,macd26+macd9);
-		for (int i=macd26+1; i<entries.size(); i++)
+		double multiplier = 2 / ((macd9 + 1) * 1.0);
+		for (int i=macd26+macd9+1; i<entries.size(); i++)
 		{
 			double ema = ((entries.get(i).getMacdLine() - lastEma) * multiplier) + lastEma;
-			entries.get(i).setMacd9(ema);
 			entries.get(i).setSignalLine(ema);
 			lastEma = ema;
 		}
@@ -97,9 +100,9 @@ public class MovingAverageMacd {
 	private double calcSma(int start,int end)
 	{
 		double total = 0.0;
-		for (; start<=end; start++)
-			total += entries.get(start).getMacdLine();
-		return total/(end-start)+1;
+		for (int i=start; i<=end; i++)
+			total += entries.get(i).getMacdLine();
+		return total/(end-start+1);
 	}
 	
 	private void calcMacdLine()

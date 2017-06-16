@@ -1,5 +1,5 @@
 package org.cz.json.portfolio;
 
 public enum PortfolioEntryType {
-	HockeyStick;
+	Base,HockeyStick;
 }

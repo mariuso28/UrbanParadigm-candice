@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.cz.home.persistence.PersistenceRuntimeException;
 import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntry;
+import org.cz.json.portfolio.PortfolioEntryI;
 import org.cz.json.portfolio.PortfolioEntryType;
 import org.cz.json.portfolio.PortfolioWatch;
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
@@ -145,8 +146,9 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 			    	  	ps.setLong(1, watch.getId());
 			      }
 			    });
-			for (PortfolioEntry pe : watch.getEntries())
+			for (PortfolioEntryI pei : watch.getEntries())
 			{
+				PortfolioEntry pe = (PortfolioEntry) pei;
 				deletePortfolioEntry(pe);
 			}
 		}

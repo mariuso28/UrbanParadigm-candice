@@ -1,10 +1,11 @@
 package org.cz.json.portfolio;
 
-// import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-// @JsonDeserialize(using = PortfolioEntryDeserializer.class)
+@JsonDeserialize(using=JsonDeserializer.None.class)
 
-public class PortfolioEntry{
+public class PortfolioEntry implements PortfolioEntryI{
 
 	private long id;
 	private PortfolioEntryType type;

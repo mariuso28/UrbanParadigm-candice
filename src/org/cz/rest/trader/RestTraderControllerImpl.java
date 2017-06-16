@@ -6,7 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.cz.json.message.CzResultJson;
@@ -67,7 +66,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 			return result;
 		}
 		
-		result.success(getUserPortfolios(user));
+		result.success(user.getPortfolios());
 		return result;
 	}
 
@@ -86,7 +85,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 			return result;
 		}
 		
-		Portfolio portfolio = getUserPortfolio(user,name);
+		Portfolio portfolio = user.getPortfolios().get(name);
 		if (portfolio == null)
 			result.fail("Portfolio : " + name + " - doen't exist");
 		else
@@ -114,7 +113,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 		try
 		{
 			czServices.getPortfolioMgr().createPortfolio(user,name,description);
-			result.success(getUserPortfolios(user));
+			result.success(user.getPortfolios().get(name));
 		}
 		catch (Exception e)
 		{
@@ -146,7 +145,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 			else
 			{
 				czServices.getPortfolioMgr().createWatch(portfolio, ticker);
-				result.success(getUserPortfolio(user,portfolioName));
+				result.success(portfolio);
 			}
 		}
 		catch (Exception e)
@@ -179,7 +178,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 			else
 			{
 				czServices.getPortfolioMgr().deleteWatch(portfolio, ticker);
-				result.success(getUserPortfolio(user,portfolioName));
+				result.success(portfolio);
 			}
 		}
 		catch (Exception e)
@@ -209,7 +208,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 		{
 			Portfolio portfolio = user.getPortfolios().get(portfolioName);
 			czServices.getPortfolioMgr().createPortfolioEntry(portfolio, ticker,type);
-			result.success(getUserPortfolio(user,portfolioName));
+			result.success(portfolio);
 		}
 		catch (Exception e)
 		{
@@ -238,7 +237,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 		{
 			Portfolio portfolio = user.getPortfolios().get(portfolioName);
 			czServices.getPortfolioMgr().deletePortfolioEntry(portfolio,ticker,entryId);
-			result.success(getUserPortfolio(user,portfolioName));
+			result.success(portfolio);
 		}
 		catch (Exception e)
 		{
@@ -290,22 +289,4 @@ public class RestTraderControllerImpl implements RestTraderController{
 		}
 	}
 	
-	private Portfolio getUserPortfolio(BaseUser user,String portfolioName)
-	{
-		Portfolio portfolio = user.getPortfolios().get(portfolioName);
-		if (portfolio == null)
-			return null;
-		
-		return portfolio.prepareForJsonWrite();
-	}
-	
-	private Map<String,Portfolio> getUserPortfolios(BaseUser user)
-	{
-		Map<String,Portfolio> sendMap = new  TreeMap<String,Portfolio>();
-		for (Portfolio portfolio : user.getPortfolios().values())
-		{
-			sendMap.put(portfolio.getName(),portfolio.prepareForJsonWrite());
-		}
-		return sendMap;
-	}
 }

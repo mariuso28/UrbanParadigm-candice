@@ -27,14 +27,18 @@ public class TestMovingAverageMacd {
 		try {
 			GregorianCalendar gc = new GregorianCalendar();
 			final Date end = gc.getTime();
-			gc.set(2002,0,1);
+			gc.set(2017,2,1);
 			final Date start = gc.getTime();
 			
 			List<SecurityDaily> sdList = service.getHome().getSecurityDailyForRange("AIRASIA",start,end);
 			
 			MovingAverageMacd ma = MovingAverageMacd.createMovingAverage(sdList);
+			int i=0;
 			for (MovingAverageMacdEntry mae : ma.getEntries())
-				log.info(mae);
+				if (mae!=null)
+				{
+					log.info("#" + i + " " + sdList.get(i).getDate() + " - " + mae);
+				}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
