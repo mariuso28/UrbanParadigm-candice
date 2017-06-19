@@ -7,8 +7,11 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.cz.json.message.CzResultJson;
 import org.cz.services.CzService;
+import org.cz.services.CzServicesException;
+import org.cz.user.BaseUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -91,5 +94,35 @@ public class RestAnonControllerImpl implements RestAnonController{
 			result.fail("Date format must be yyyy-MM-dd");
 			return result;
 		}
+	}
+	
+	@Override
+	@RequestMapping(value = "/register")
+	// CzResultJson contains info message if success, error message if fail 
+	public CzResultJson register(@RequestParam("email") String email,@RequestParam("password") String password,
+							@RequestParam("contact") String contact,@RequestParam("phone") String phone )
+	{
+		log.info("Registering : " + email);
+		CzResultJson result = new CzResultJson();
+		try {
+			services.register(email,password,contact,phone);
+			
+			BaseUser admin = services.getHome().getAdmin();
+			String message = "You've been successfully registered. Please contact : " + admin.getContact() + " to enable."
+					+ "(email : " + admin.getEmail() + " phone: " + admin.getPhone() + ")";
+			log.info(message);
+			result.success(message);
+		} catch (CzServicesException e) {
+			log.error(e.getMessage());
+			result.fail(e.getMessage());
+		}		
+		catch (Exception e1) {
+			e1.printStackTrace();
+			log.error(e1.getMessage());
+			result.fail("Could not register : " + email + " please try later.");
+		}		
+
+		
+		return result;
 	}
 }

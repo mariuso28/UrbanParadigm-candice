@@ -21,7 +21,7 @@ public class TestBaseUser
 		bu.setIcon("");
 		bu.setPassword("88888888");
 		bu.setPhone("012345678");
-		bu.setRole(Role.ROLE_TRADER);
+		bu.setRole(Role.ROLE_ADMIN);
 		return bu;
 	}
 	
@@ -34,7 +34,7 @@ public class TestBaseUser
 		bu.setIcon("");
 		bu.setPassword("88888888");
 		bu.setPhone("0102202005");
-		bu.setRole(Role.ROLE_ADMIN);
+		bu.setRole(Role.ROLE_TRADER);
 		return bu;
 	}
 	

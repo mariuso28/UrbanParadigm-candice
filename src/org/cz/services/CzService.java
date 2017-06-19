@@ -9,6 +9,9 @@ import org.apache.log4j.Logger;
 import org.cz.home.Home;
 import org.cz.importer.SecurityDailyDownload;
 import org.cz.json.security.SecurityDaily;
+import org.cz.user.BaseUser;
+import org.cz.user.Role;
+import org.cz.validate.RegistrationValidator;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -33,6 +36,7 @@ public class CzService {
 //		scheduleUpdateDailySecurities();
 	}
 	
+	@SuppressWarnings("unused")
 	private void scheduleUpdateDailySecurities() 
 	{	
 		dailyRefresh();
@@ -86,6 +90,44 @@ public class CzService {
 		}
 		
 		SecurityDailyDownload.download(from, to, folder);
+	}
+	
+	public void register(String email, String password, String contact, String phone) throws CzServicesException{
+		
+		String msg = RegistrationValidator.validateFields(email, password, contact, phone);
+		if (!msg.isEmpty())
+			throw new CzServicesException("Missing or invalid fields: " + msg);
+		
+		BaseUser member = getHome().getBaseUserByEmail(email);
+		
+		if (member!=null)
+		{
+			throw new CzServicesException("Cannot register : " + email + " aleady exists on system - please try alternative email.");
+		}
+
+		BaseUser user = new BaseUser();
+		
+	//	PasswordEncoder encoder = new BCryptPasswordEncoder();
+	//	user.setPassword(encoder.encode(password));
+		user.setPassword(password);
+		user.setContact(contact);
+		user.setPhone(phone);
+		user.setEmail(email);
+		user.setRole(Role.ROLE_TRADER);
+		user.setEnabled(false);
+		
+		getHome().storeBaseUser(user);
+	}
+
+	public void updateEnabled(String email,boolean enabled) throws CzServicesException
+	{
+		BaseUser user = getHome().getBaseUserByEmail(email);
+		if (user==null)
+		{
+			throw new CzServicesException("Cannot enable/disable : " + email + " user does not exist on system.");
+		}
+		user.setEnabled(enabled);
+		home.updateBaseUserProfile(user);
 	}
 	
 	public Home getHome() {

@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface Home {
 	
+	public BaseUser getAdmin() throws PersistenceRuntimeException;
 	public void storeBaseUser(BaseUser baseUser) throws PersistenceRuntimeException;
 	public BaseUser getBaseUserByEmail(String email) throws PersistenceRuntimeException;
 	public void updateBaseUserProfile(BaseUser baseUser) throws PersistenceRuntimeException;

@@ -50,7 +50,7 @@ public class CustomUserDetailsService implements UserDetailsService{
 		
 		Collection<GrantedAuthority> authorities = getAuthorities(baseUser);
 		
-		User user = new User(baseUser.getEmail(), baseUser.getPassword(), baseUser.isEnabled(), true, true, true, authorities);
+		User user = new User(baseUser.getEmail(), baseUser.getPassword(), true, true, true, true, authorities);
 		
 		log.info("Using User : " + user.getUsername() + " with authorities :" + authorities);
 		return user;

@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.cz.home.Home;
 import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntry;
+import org.cz.json.portfolio.PortfolioEntryI;
 import org.cz.json.portfolio.PortfolioEntryType;
 import org.cz.json.portfolio.PortfolioException;
 import org.cz.json.portfolio.PortfolioWatch;
@@ -146,7 +147,7 @@ public class PortfolioMgr {
 		
 		for (PortfolioWatch pw : port.getWatchList().values())
 		{
-			for (PortfolioEntry pe : pw.getEntries())
+			for (PortfolioEntryI pe : pw.getEntries())
 			{
 				updatePortfolioEntry(pe,port);
 			}
@@ -155,10 +156,13 @@ public class PortfolioMgr {
 		home.setUpdated(port);
 	}
 
-	private void updatePortfolioEntry(PortfolioEntry pe,Portfolio portfolio) throws PortfolioException {
+	private void updatePortfolioEntry(PortfolioEntryI pei,Portfolio portfolio) throws PortfolioException {
+		
+		PortfolioEntry pe = (PortfolioEntry) pei;
+		
 		if (pe.getType().equals(PortfolioEntryType.HockeyStick))
 		{
-			PortfolioEntryHs peh = (PortfolioEntryHs) pe;
+			PortfolioEntryHs peh = (PortfolioEntryHs) pei;
 			if (peh.getStatus().equals(PortfolioHsStatus.SEEK))
 			{
 				YearHigh yh = yearHighs.get(pe.getSecurityTicker()); 

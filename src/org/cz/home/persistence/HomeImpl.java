@@ -44,6 +44,12 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 	}
 	
 	@Override
+	public BaseUser getAdmin() throws PersistenceRuntimeException
+	{
+		return baseUserDao.getAdmin();
+	}
+	
+	@Override
 	public void storeBaseUser(BaseUser baseUser) throws PersistenceRuntimeException
 	{
 		baseUserDao.storeBaseUser(baseUser);
@@ -53,6 +59,8 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 	public BaseUser getBaseUserByEmail(String email) throws PersistenceRuntimeException
 	{
 		BaseUser bu = baseUserDao.getBaseUserByEmail(email);
+		if (bu==null)
+			return null;
 		bu.setPortfolios(getPortfolios(bu));
 		return bu;
 	}

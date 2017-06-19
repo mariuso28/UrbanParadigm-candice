@@ -4,7 +4,9 @@ import java.util.Date;
 
 import org.cz.json.message.CzResultJson;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+@RequestMapping("/api/anon")
 public interface RestAnonController {
 
 	@RequestMapping(value = "/getSecurities")
@@ -23,5 +25,9 @@ public interface RestAnonController {
 	// Dx4ResultJson contains List<SecurityDaily> if success, message if fail
 	public CzResultJson getSecurityDailyForRangeStr(final String ticker,String start,final String end);
 	
+	@RequestMapping(value = "/register")
+	// CzResultJson contains info message if success, error message if fail 
+	public CzResultJson register(@RequestParam("email") String email,@RequestParam("password") String password,
+							@RequestParam("contact") String contact,@RequestParam("phone") String phone );
 	
 }

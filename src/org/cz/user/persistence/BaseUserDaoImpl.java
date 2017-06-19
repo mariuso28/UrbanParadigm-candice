@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 import org.cz.home.persistence.PersistenceRuntimeException;
 import org.cz.user.BaseUser;
+import org.cz.user.Role;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -23,6 +24,28 @@ import org.springframework.web.multipart.MultipartFile;
 public class BaseUserDaoImpl extends NamedParameterJdbcDaoSupport implements BaseUserDao {
 	
 	private static Logger log = Logger.getLogger(BaseUserDaoImpl.class);
+	
+	@Override
+	public BaseUser getAdmin() throws PersistenceRuntimeException 
+	{	
+		try
+		{
+			final String sql = "SELECT id,email,password,enabled,icon,contact,phone,role FROM baseUser WHERE role=?";
+			List<BaseUser> bus = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
+				        public void setValues(PreparedStatement preparedStatement) throws SQLException {
+				          preparedStatement.setString(1, Role.ROLE_ADMIN.name());
+				        }
+				      }, BeanPropertyRowMapper.newInstance(BaseUser.class));
+			if (bus.isEmpty())
+				throw new PersistenceRuntimeException("Could not find Admin user - Fatal error");
+			return bus.get(0);
+		}
+		catch (DataAccessException e)
+		{
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}
+	}
 	
 	@Override
 	public void storeBaseUser(final BaseUser baseUser) throws PersistenceRuntimeException {
@@ -70,10 +93,10 @@ public class BaseUserDaoImpl extends NamedParameterJdbcDaoSupport implements Bas
 						public void setValues(PreparedStatement ps) throws SQLException {
 						ps.setString(1, baseUser.getContact());
 						ps.setString(2, baseUser.getPhone());
-						ps.setString(4, baseUser.getIcon());
-						ps.setBoolean(5, baseUser.isEnabled());
-						ps.setString(6, baseUser.getPassword());
-						ps.setObject(7, baseUser.getId());
+						ps.setString(3, baseUser.getIcon());
+						ps.setBoolean(4, baseUser.isEnabled());
+						ps.setString(5, baseUser.getPassword());
+						ps.setObject(6, baseUser.getId());
 			      }
 			    });
 		}

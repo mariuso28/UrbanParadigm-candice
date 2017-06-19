@@ -90,7 +90,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
 		.permitAll()
 		
 		.antMatchers(
-				"/adm/**"
+				"/api/adm/**"
 				)
 		
 		.access("hasRole('ROLE_ADMIN')")

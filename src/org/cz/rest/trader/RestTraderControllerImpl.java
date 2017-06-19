@@ -14,6 +14,7 @@ import org.cz.json.portfolio.PortfolioEntryType;
 import org.cz.json.security.YearHigh;
 import org.cz.services.CzService;
 import org.cz.user.BaseUser;
+import org.cz.user.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -40,12 +41,9 @@ public class RestTraderControllerImpl implements RestTraderController{
 		String email = ((User)auth.getPrincipal()).getUsername();
 		
 		CzResultJson result = new CzResultJson();
-		BaseUser user = czServices.getHome().getBaseUserByEmail(email);
+		BaseUser user = getBaseUser(email,result);
 		if (user == null)
-		{
-			result.fail("User : " + email + " not found");
 			return result;
-		}
 		
 		result.success(user.createCzBaseUserProfileJson());
 		return result;
@@ -59,12 +57,9 @@ public class RestTraderControllerImpl implements RestTraderController{
 		String email = ((User)auth.getPrincipal()).getUsername();
 		
 		CzResultJson result = new CzResultJson();
-		BaseUser user = czServices.getHome().getBaseUserByEmail(email);
+		BaseUser user = getBaseUser(email,result);
 		if (user == null)
-		{
-			result.fail("User : " + email + " not found");
 			return result;
-		}
 		
 		result.success(user.getPortfolios());
 		return result;
@@ -78,12 +73,9 @@ public class RestTraderControllerImpl implements RestTraderController{
 		String email = ((User)auth.getPrincipal()).getUsername();
 		
 		CzResultJson result = new CzResultJson();
-		BaseUser user = czServices.getHome().getBaseUserByEmail(email);
+		BaseUser user = getBaseUser(email,result);
 		if (user == null)
-		{
-			result.fail("User : " + email + " not found");
 			return result;
-		}
 		
 		Portfolio portfolio = user.getPortfolios().get(name);
 		if (portfolio == null)
@@ -103,12 +95,9 @@ public class RestTraderControllerImpl implements RestTraderController{
 		String email = ((User)auth.getPrincipal()).getUsername();
 		
 		CzResultJson result = new CzResultJson();
-		BaseUser user = czServices.getHome().getBaseUserByEmail(email);
+		BaseUser user = getBaseUser(email,result);
 		if (user == null)
-		{
-			result.fail("User : " + email + " not found");
 			return result;
-		}
 		
 		try
 		{
@@ -130,12 +119,9 @@ public class RestTraderControllerImpl implements RestTraderController{
 		String email = ((User)auth.getPrincipal()).getUsername();
 		
 		CzResultJson result = new CzResultJson();
-		BaseUser user = czServices.getHome().getBaseUserByEmail(email);
+		BaseUser user = getBaseUser(email,result);
 		if (user == null)
-		{
-			result.fail("User : " + email + " not found");
 			return result;
-		}
 		
 		try
 		{
@@ -163,12 +149,9 @@ public class RestTraderControllerImpl implements RestTraderController{
 		String email = ((User)auth.getPrincipal()).getUsername();
 		
 		CzResultJson result = new CzResultJson();
-		BaseUser user = czServices.getHome().getBaseUserByEmail(email);
+		BaseUser user = getBaseUser(email,result);
 		if (user == null)
-		{
-			result.fail("User : " + email + " not found");
 			return result;
-		}
 		
 		try
 		{
@@ -197,12 +180,9 @@ public class RestTraderControllerImpl implements RestTraderController{
 		String email = ((User)auth.getPrincipal()).getUsername();
 		
 		CzResultJson result = new CzResultJson();
-		BaseUser user = czServices.getHome().getBaseUserByEmail(email);
+		BaseUser user = getBaseUser(email,result);
 		if (user == null)
-		{
-			result.fail("User : " + email + " not found");
 			return result;
-		}
 		
 		try
 		{
@@ -226,12 +206,9 @@ public class RestTraderControllerImpl implements RestTraderController{
 		String email = ((User)auth.getPrincipal()).getUsername();
 		
 		CzResultJson result = new CzResultJson();
-		BaseUser user = czServices.getHome().getBaseUserByEmail(email);
+		BaseUser user = getBaseUser(email,result);
 		if (user == null)
-		{
-			result.fail("User : " + email + " not found");
 			return result;
-		}
 		
 		try
 		{
@@ -253,12 +230,9 @@ public class RestTraderControllerImpl implements RestTraderController{
 		String email = ((User)auth.getPrincipal()).getUsername();
 		
 		CzResultJson result = new CzResultJson();
-		BaseUser user = czServices.getHome().getBaseUserByEmail(email);
+		BaseUser user = getBaseUser(email,result);
 		if (user == null)
-		{
-			result.fail("User : " + email + " not found");
 			return result;
-		}
 		
 		try
 		{
@@ -289,4 +263,28 @@ public class RestTraderControllerImpl implements RestTraderController{
 		}
 	}
 	
+	private BaseUser getBaseUser(String email,CzResultJson result)
+	{
+		BaseUser user = czServices.getHome().getBaseUserByEmail(email);
+		if (user == null)
+		{
+			result.fail("User : " + email + " not found");
+			return null;
+		}
+		if (!(user.getRole().equals(Role.ROLE_ADMIN) || user.getRole().equals(Role.ROLE_TRADER)))
+		{
+			result.fail("User : " + email + " has unknown or unauthorized role: " + user.getRole());
+			return null;
+		}
+		if (!user.isEnabled())
+		{
+			BaseUser admin = czServices.getHome().getAdmin();
+			String message = "User : " + email + " not enabled. Please contact : " + admin.getContact() + " to enable."
+					+ "(email : " + admin.getEmail() + " phone: " + admin.getPhone() + ")";
+			result.fail(message);
+			return null;
+		}
+		
+		return user;
+	}
 }

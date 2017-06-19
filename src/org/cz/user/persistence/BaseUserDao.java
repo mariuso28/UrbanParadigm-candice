@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface BaseUserDao{
 
+	public BaseUser getAdmin() throws PersistenceRuntimeException;
 	public void storeBaseUser(BaseUser baseUser) throws PersistenceRuntimeException;
 	public BaseUser getBaseUserByEmail(String email) throws PersistenceRuntimeException;
 	public List<BaseUser> getActiveBaseUsers() throws PersistenceRuntimeException;
