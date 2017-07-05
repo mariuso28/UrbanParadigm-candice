@@ -100,12 +100,13 @@ public class RestAnonControllerImpl implements RestAnonController{
 	@RequestMapping(value = "/register")
 	// CzResultJson contains info message if success, error message if fail 
 	public CzResultJson register(@RequestParam("email") String email,@RequestParam("password") String password,
-							@RequestParam("contact") String contact,@RequestParam("phone") String phone )
+							@RequestParam("contact") String contact,@RequestParam("phone") String phone,
+							@RequestParam("deviceId") String deviceId )
 	{
 		log.info("Registering : " + email);
 		CzResultJson result = new CzResultJson();
 		try {
-			services.register(email,password,contact,phone);
+			services.register(email,password,contact,phone,deviceId);
 			
 			BaseUser admin = services.getHome().getAdmin();
 			String message = "You've been successfully registered. Please contact : " + admin.getContact() + " to enable."

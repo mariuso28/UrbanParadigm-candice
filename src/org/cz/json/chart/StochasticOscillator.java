@@ -31,56 +31,55 @@ public class StochasticOscillator {
 	
 	private void calculate(List<SecurityDaily> sdList) {
 		entries = new ArrayList<StochasticOscillatorEntry>();
-		for (int i=0; i<periods; i++)
-			entries.add(null);
-		for (int i=periods; i<sdList.size(); i++)
+		for (SecurityDaily sd : sdList)
 		{
-			SecurityDaily sd = sdList.get(i);
-			entries.add(new StochasticOscillatorEntry(sd.getDate(),sd.getClose()));	
+			StochasticOscillatorEntry so =  new StochasticOscillatorEntry(sd.getDate(),sd.getClose(),sd.getHigh(),sd.getLow());
+			entries.add(so);
 		}
-		
 		for (int last=sdList.size()-1; last>=periods; last--)
 		{
-			calcHighLow(last-periods,last,sdList);
+			calcHighLow(last);
+		}
+		calcKLine();
+		calcDLine();
+	}
+
+	private void calcHighLow(int last) {
+		
+		double high = Double.MIN_VALUE;
+		double low = Double.MAX_VALUE;
+		for (int i=last; i>last-periods; i--)
+		{
+			StochasticOscillatorEntry so = entries.get(i);
+			if (high<so.getHigh())
+				high = so.getHigh();
+			if (low>so.getLow())
+				low = so.getLow();
+		}
+		StochasticOscillatorEntry so = entries.get(last);
+		so.setHighestHigh(high);
+		so.setLowestLow(low);
+	}
+	
+	private void calcKLine() {
+		
+		for (int i=periods; i<entries.size(); i++)
+		{
+			StochasticOscillatorEntry so = entries.get(i);
+			double k = ((so.getClose() - so.getLowestLow()) / (so.getHighestHigh() - so.getLowestLow())) * 100;	
+			so.setkLine(k);
 		}
 	}
 
-	private void calcHighLow(int first, int last, List<SecurityDaily> sdList) {
+	private void calcDLine() {
 		
-		SecurityDaily sd = sdList.get(first+1);
-		double high = sd.getHigh();
-		double low = sd.getLow();
-		first++;
-		for (; first<=last; first++)
+		for (int i=periods+3; i<entries.size(); i++)
 		{
-			sd = sdList.get(first);
-			if (high<sd.getHigh())
-				high = sd.getHigh();
-			if (low>sd.getLow())
-				low = sd.getLow();
+			StochasticOscillatorEntry entry = entries.get(i);
+			entry.setdLine(sma3(i));
 		}
-		
-		double k=0;
-		double close = sdList.get(last).getClose();
-		if (close != low)
-			k = ((close - low) / (high - low)) * 100;	
-		
-		StochasticOscillatorEntry entry = entries.get(last);
-		if (k==0)
-		{
-			if (last!=entries.size()-1)
-			{
-				StochasticOscillatorEntry lentry = entries.get(last+1);
-				if (lentry!=null)
-					k = lentry.getkLine();
-			}
-		}
-		
-		entry.setkLine(k);
-		if (last>periods+2)
-			entry.setdLine(sma3(last));
 	}
-
+	
 	private double sma3(int last) {
 		
 		double total = 0;

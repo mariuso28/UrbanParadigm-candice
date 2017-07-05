@@ -92,11 +92,14 @@ public class CzService {
 		SecurityDailyDownload.download(from, to, folder);
 	}
 	
-	public void register(String email, String password, String contact, String phone) throws CzServicesException{
+	public void register(String email, String password, String contact, String phone, String deviceId) throws CzServicesException{
 		
 		String msg = RegistrationValidator.validateFields(email, password, contact, phone);
 		if (!msg.isEmpty())
 			throw new CzServicesException("Missing or invalid fields: " + msg);
+		
+		if (deviceId==null || deviceId.isEmpty())
+			throw new CzServicesException("Missing deviceId");
 		
 		BaseUser member = getHome().getBaseUserByEmail(email);
 		
@@ -112,6 +115,7 @@ public class CzService {
 		user.setPassword(password);
 		user.setContact(contact);
 		user.setPhone(phone);
+		user.setDeviceId(deviceId);
 		user.setEmail(email);
 		user.setRole(Role.ROLE_TRADER);
 		user.setEnabled(false);

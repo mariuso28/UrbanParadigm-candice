@@ -18,8 +18,8 @@ public class RsiEntry extends ChartEntry{
 	}
 
 	public void calcRsi() {
-		rs = avgGain - avgLoss;
-		rsi = 100 - (100 / (1 + rs));
+		rs = avgGain/(avgLoss * 1.0);
+		rsi = 100.0 - (100.0 / (1 + rs));
 	}
 	
 	public double getChange() {

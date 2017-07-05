@@ -40,12 +40,13 @@ public class Rsi {
 			return;
 		
 		entries.add(null);
-		double lastClose = sdList.get(0).getClose();
-		for (int i=1; i<sdList.size(); i++)
+		double lastClose = 0;
+		for (int i=0; i<sdList.size(); i++)
 		{
 			SecurityDaily sd = sdList.get(i);
 			RsiEntry re = new RsiEntry(sd.getDate(),sd.getClose());
-			re.setChange(sd.getClose()-lastClose);
+			if (lastClose!=0)
+				re.setChange(sd.getClose()-lastClose);
 			entries.add(re);
 			lastClose = sd.getClose();
 		}	
@@ -56,22 +57,17 @@ public class Rsi {
 
 	private void calculateSubsequentGainLosses(List<SecurityDaily> sdList) {
 		
-		for (int i=(periods*2)+1; i<entries.size(); i++)
+		for (int i=periods+2; i<entries.size(); i++)
 		{
+			if (i>=sdList.size())
+				break;
+			
 			RsiEntry re = entries.get(i);
 			RsiEntry pre = entries.get(i-1);
-			double avLoss = 0;
-			double avGain = 0;
-			if (re.getChange()>0)
-			{
-				avGain = (pre.getAvgGain() * 13 + re.getChange()) / periods;
-				avLoss = pre.getAvgLoss();
-			}
-			else
-			{
-				avLoss = (pre.getAvgLoss() * 13 + (re.getChange()*-1.0)) / periods;
-				avGain = pre.getAvgGain();
-			}
+			
+			double avGain = (pre.getAvgGain() * 13 + re.getGain()) / periods;
+			double avLoss = (pre.getAvgLoss() * 13 + re.getLoss()) / periods;
+			
 			re.setAvgGain(avGain);
 			re.setAvgLoss(avLoss);
 			re.calcRsi();
@@ -79,28 +75,23 @@ public class Rsi {
 	}
 	
 	private void calculateFirstGainLosses(List<SecurityDaily> sdList) {
-		
-		for (int i=periods; i<=(periods*2); i++)
-		{
-			setFirstAverageGainLosses(i,sdList);
-		}
-	}
-
-	private void setFirstAverageGainLosses(int pos, List<SecurityDaily> sdList) {
-		RsiEntry re = entries.get(pos);
+	
 		double avLoss = 0;
 		double avGain = 0;
-		for (int i=0; i<periods; i++)
+		for (int i=1; i<periods+1; i++)
 		{
-			RsiEntry rp = entries.get(pos--);
+			RsiEntry rp = entries.get(i);
+			if (rp==null)
+				continue;
 			if (rp.getChange()>0)
 				avGain+=rp.getChange();
 			else
 				avLoss+=(rp.getChange() * -1.0);
 		}
-		re.setAvgGain(avGain/periods);
-		re.setAvgLoss(avLoss/periods);
-		re.calcRsi();
+		RsiEntry rp = entries.get(periods+1);
+		rp.setAvgGain(avGain/periods);
+		rp.setAvgLoss(avLoss/periods);
+		rp.calcRsi();
 	}
 
 	public List<RsiEntry> getEntries() {
@@ -110,5 +101,5 @@ public class Rsi {
 	public void setEntries(List<RsiEntry> entries) {
 		this.entries = entries;
 	}
-	
+
 }

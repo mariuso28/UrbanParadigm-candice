@@ -38,6 +38,7 @@ public class AuthRestController {
 	public CzResultJson authorize(
 			@RequestParam("username") String username,
 			@RequestParam("password") String password,
+			@RequestParam("deviceId") String deviceId,
 			HttpServletRequest request
 			){
 		CzResultJson result = new CzResultJson();
@@ -52,6 +53,7 @@ public class AuthRestController {
 			map.add("client_secret", "secret");
 			map.add("username", username);
 			map.add("password", password);
+			map.add("deviceId", deviceId);
 			HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 			ResponseEntity<Object> responseEntity = restTemplate.exchange(path, HttpMethod.POST, entity, Object.class);
 			result.success(responseEntity.getBody());

@@ -30,7 +30,7 @@ public class BaseUserDaoImpl extends NamedParameterJdbcDaoSupport implements Bas
 	{	
 		try
 		{
-			final String sql = "SELECT id,email,password,enabled,icon,contact,phone,role FROM baseUser WHERE role=?";
+			final String sql = "SELECT id,email,password,enabled,icon,contact,phone,deviceid,role FROM baseUser WHERE role=?";
 			List<BaseUser> bus = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
 				        public void setValues(PreparedStatement preparedStatement) throws SQLException {
 				          preparedStatement.setString(1, Role.ROLE_ADMIN.name());
@@ -61,8 +61,8 @@ public class BaseUserDaoImpl extends NamedParameterJdbcDaoSupport implements Bas
 				      }
 				    });
 			
-			getJdbcTemplate().update("INSERT INTO baseuser (id,email,contact,phone,role,icon,enabled,password) "
-										+ "VALUES (?,?,?,?,?,?,?,?)"
+			getJdbcTemplate().update("INSERT INTO baseuser (id,email,contact,phone,role,icon,enabled,password,deviceid) "
+										+ "VALUES (?,?,?,?,?,?,?,?,?)"
 			        , new PreparedStatementSetter() {
 						public void setValues(PreparedStatement ps) throws SQLException {
 			    	  	ps.setObject(1, baseUser.getId());
@@ -73,6 +73,7 @@ public class BaseUserDaoImpl extends NamedParameterJdbcDaoSupport implements Bas
 						ps.setString(6, baseUser.getIcon());
 						ps.setBoolean(7, baseUser.isEnabled());
 						ps.setString(8, baseUser.getPassword());
+						ps.setString(9, baseUser.getDeviceId());
 			      }
 			    });
 		}

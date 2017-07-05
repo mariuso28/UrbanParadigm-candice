@@ -13,6 +13,7 @@ public class BaseUser
 	private String contact;
 	private String email;
 	private String phone;
+	private String deviceId;
 	private String password;
 	private boolean enabled;
 	private Role role;
@@ -71,6 +72,14 @@ public class BaseUser
 
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
 	}
 
 	public String getPassword() {

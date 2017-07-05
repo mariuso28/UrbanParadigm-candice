@@ -1,5 +1,7 @@
 package org.cz.test;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -34,9 +36,18 @@ public class TestRsi {
 			
 			Rsi ma = Rsi.createRsi(sdList);
 			int cnt = 0;
-			for (RsiEntry mae : ma.getEntries())
+			System.out.println("Date,Close,Change,Gain,Loss,Avg Gain,Avg Loss,RS,RSI");
+			NumberFormat formatter = new DecimalFormat("#0.00");
+			
+			int dnum = sdList.size() - ma.getEntries().size();
+			for (RsiEntry m : ma.getEntries())
 			{
-				log.info(cnt + " : " + mae);
+				if (m==null)
+					continue;
+				String  str = sdList.get(dnum++).getDate() + "," + formatter.format(m.getClose()) + "," + formatter.format(m.getChange()) + "," 
+							+ formatter.format(m.getGain()) + "," + formatter.format(m.getAvgGain()) +"," 
+							+ formatter.format(m.getAvgLoss()) + "," + formatter.format(m.getRs()) + "," + formatter.format(m.getRsi());
+				System.out.println(str);
 				if (cnt++>30)
 					break;
 			}
