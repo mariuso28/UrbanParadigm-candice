@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -94,7 +93,7 @@ public class SoSample {
 		
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter("/home/pmk/workspace/candice/sample/so-sample.csv"));
-			bw.write("Date,High,Low,Hisgest High,Lowest Low,close,kline,Stoch Osc");
+			bw.write("Date,High,Low,Hisgest High,Lowest Low,close,kline,dLine");
 			bw.newLine();
 			List<SecurityDaily> sdList = create();
 			

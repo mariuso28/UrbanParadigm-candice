@@ -84,7 +84,7 @@ public class RsiSample {
 			
 			Rsi rsi = Rsi.createRsi(sdList);
 			int cnt=0;
-			for (SecurityDaily sd : sdList)
+			for (@SuppressWarnings("unused") SecurityDaily sd : sdList)
 			{
 				RsiEntry rsiEntry = rsi.getEntries().get(cnt++);
 				if (rsiEntry != null)

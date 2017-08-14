@@ -26,6 +26,7 @@ public interface Home {
 	public byte[] getImage(final String email) throws PersistenceRuntimeException;
 	public String getEmailForId(UUID id) throws PersistenceRuntimeException;
 	public List<BaseUser> getActiveBaseUsers() throws PersistenceRuntimeException;
+	public List<BaseUser> getAllBaseUsers() throws PersistenceRuntimeException;
 	public void setDefaultPasswordForAll(String encoded);
 	
 	public void storePortfolio(BaseUser baseUser,Portfolio portfolio);

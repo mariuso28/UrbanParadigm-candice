@@ -152,7 +152,23 @@ public class BaseUserDaoImpl extends NamedParameterJdbcDaoSupport implements Bas
 	{	
 		try
 		{
-			final String sql = "SELECT id,email,password,enabled,icon,contact,phone,role FROM baseUser WHERE enable=true";
+			final String sql = "SELECT id,email,password,enabled,icon,contact,phone,role FROM baseUser WHERE enable=true ORDER by email";
+			List<BaseUser> bus = getJdbcTemplate().query(sql, BeanPropertyRowMapper.newInstance(BaseUser.class));
+			return bus;
+		}
+		catch (DataAccessException e)
+		{
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}
+	}
+	
+	@Override
+	public List<BaseUser> getAllBaseUsers() throws PersistenceRuntimeException 
+	{	
+		try
+		{
+			final String sql = "SELECT id,email,password,enabled,icon,contact,phone,role FROM baseUser ORDER by enabled,email";
 			List<BaseUser> bus = getJdbcTemplate().query(sql, BeanPropertyRowMapper.newInstance(BaseUser.class));
 			return bus;
 		}

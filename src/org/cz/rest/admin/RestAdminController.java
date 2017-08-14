@@ -16,7 +16,11 @@ public interface RestAdminController {
 		// CzResultJson contains info message if success, error message if fail
 		public CzResultJson enableUser(OAuth2Authentication auth,String userEmail);
 		
-		@RequestMapping(value = "/diableUser")
+		@RequestMapping(value = "/disableUser")
 		// CzResultJson contains info message if success, error message if fail
 		public CzResultJson disableUser(OAuth2Authentication auth,String userEmail);
+		
+		@RequestMapping(value = "/getTraderProfiles")
+		// CzResultJson contains list of CzBaseUserProfileJson if success, error message if fail
+		public CzResultJson getTraderProfiles(OAuth2Authentication auth);
 }

@@ -75,6 +75,11 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 		 return bus;
 	}
 	
+	public List<BaseUser> getAllBaseUsers() throws PersistenceRuntimeException
+	{
+		return baseUserDao.getAllBaseUsers();
+	}
+	
 	@Override
 	public void updateBaseUserProfile(BaseUser baseUser) throws PersistenceRuntimeException
 	{

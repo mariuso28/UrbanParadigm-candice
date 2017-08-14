@@ -39,6 +39,7 @@ public class BaseUser
 		pj.setIcon(icon);
 		pj.setPhone(phone);
 		pj.setRole(role.name());
+		pj.setEnabled(enabled);
 		return pj;
 	}
 	

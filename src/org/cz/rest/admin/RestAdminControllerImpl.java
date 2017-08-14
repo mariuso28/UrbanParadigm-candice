@@ -1,6 +1,10 @@
 package org.cz.rest.admin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
+import org.cz.json.message.CzBaseUserProfileJson;
 import org.cz.json.message.CzResultJson;
 import org.cz.rest.trader.RestTraderControllerImpl;
 import org.cz.services.CzService;
@@ -108,6 +112,30 @@ public class RestAdminControllerImpl implements RestAdminController {
 		return user;
 	}
 
-	
+	@RequestMapping(value = "/getTraderProfiles")
+	// CzResultJson contains list of CzBaseUserProfileJson if success, error message if fail
+	public CzResultJson getTraderProfiles(OAuth2Authentication auth)
+	{
+		String email = ((User)auth.getPrincipal()).getUsername();
+		CzResultJson result = new CzResultJson();
+		BaseUser user = getAdmin(email,result);
+		if (user == null)
+			return result;
+		
+		try
+		{
+			List<BaseUser> bus = czServices.getHome().getAllBaseUsers();
+			List<CzBaseUserProfileJson> bups = new ArrayList<CzBaseUserProfileJson>();
+			for (BaseUser bu  : bus)
+				if (bu.getRole().equals(Role.ROLE_TRADER))
+					bups.add(bu.createCzBaseUserProfileJson());
+			result.success(bups);
+		}
+		catch (Exception e)
+		{
+			result.fail("Could not getTraderProfiles : " + e.getMessage());
+		}
+		return result;
+	}
 	
 }

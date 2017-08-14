@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class TestRsi {
+	@SuppressWarnings("unused")
 	private static Logger log = Logger.getLogger(TestRsi.class);
 	
 	public static void main(String[] args)

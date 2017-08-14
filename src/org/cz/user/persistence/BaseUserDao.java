@@ -13,6 +13,7 @@ public interface BaseUserDao{
 	public void storeBaseUser(BaseUser baseUser) throws PersistenceRuntimeException;
 	public BaseUser getBaseUserByEmail(String email) throws PersistenceRuntimeException;
 	public List<BaseUser> getActiveBaseUsers() throws PersistenceRuntimeException;
+	public List<BaseUser> getAllBaseUsers() throws PersistenceRuntimeException;
 	public void updateBaseUserProfile(BaseUser baseUser) throws PersistenceRuntimeException;
 	public void storeImage(String email,MultipartFile data, String contentType) throws PersistenceRuntimeException;
 	public byte[] getImage(final String email) throws PersistenceRuntimeException;

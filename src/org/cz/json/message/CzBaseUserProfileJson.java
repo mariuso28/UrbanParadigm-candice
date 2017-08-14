@@ -8,6 +8,7 @@ public class CzBaseUserProfileJson {
 	private String password;
 	private String role;
 	private String icon;
+	private boolean enabled;
 	
 	public CzBaseUserProfileJson()
 	{
@@ -59,6 +60,14 @@ public class CzBaseUserProfileJson {
 
 	public void setIcon(String icon) {
 		this.icon = icon;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 	
 	
