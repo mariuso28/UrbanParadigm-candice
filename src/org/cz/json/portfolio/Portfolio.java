@@ -11,7 +11,8 @@ public class Portfolio {
 	private String description;
 	private Date updated;
 	private Map<String,PortfolioWatch> watchList = new TreeMap<String,PortfolioWatch>();
-
+	private Map<String,PortfolioAction> actions = new TreeMap<String,PortfolioAction>();
+	
 	public Portfolio()
 	{
 	}
@@ -54,6 +55,14 @@ public class Portfolio {
 
 	public void setUpdated(Date updated) {
 		this.updated = updated;
+	}
+
+	public Map<String,PortfolioAction> getActions() {
+		return actions;
+	}
+
+	public void setActions(Map<String,PortfolioAction> actions) {
+		this.actions = actions;
 	}
 
 	@Override

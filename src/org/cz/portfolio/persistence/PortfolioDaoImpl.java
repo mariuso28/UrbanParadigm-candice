@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -14,6 +15,8 @@ import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntry;
 import org.cz.json.portfolio.PortfolioEntryI;
 import org.cz.json.portfolio.PortfolioEntryType;
+import org.cz.json.portfolio.PortfolioProfitLoss;
+import org.cz.json.portfolio.PortfolioTransaction;
 import org.cz.json.portfolio.PortfolioWatch;
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
 import org.cz.user.BaseUser;
@@ -352,5 +355,122 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 		}	
 	}
 
+	@Override
+	public void storePortfolioTransaction(final PortfolioTransaction trans) {
 
+		final Timestamp lab = new Timestamp(trans.getTimestamp().getTime());
+		try
+		{
+			KeyHolder keyHolder = new GeneratedKeyHolder();
+			final String sql = "INSERT INTO portfoliotransaction (traderemail,porfolioname,timestamp,ticker,price,quantity,action) VALUES (?,?,?,?,?,?,?)";
+			getJdbcTemplate().update(
+			    new PreparedStatementCreator() {
+			        public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+			            PreparedStatement ps =
+			                connection.prepareStatement(sql, new String[] {"id"});
+			            ps.setString(1, trans.getTraderEmail());
+						ps.setString(2, trans.getPortfolioName());
+						ps.setTimestamp(3, lab);
+						ps.setString(4, trans.getTicker());
+						ps.setDouble(5, trans.getPrice());
+						ps.setDouble(6, trans.getQuantity());
+						ps.setString(7, trans.getAction().name());
+			            return ps;
+			        }
+			    },
+			    keyHolder);
+			
+			final long id = keyHolder.getKey().longValue();
+			trans.setId(id);
+		}
+		catch (DataAccessException e)
+		{
+			e.printStackTrace();
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}	
+	}
+	
+	@Override
+	public List<PortfolioTransaction> getPortfolioTransactions(final BaseUser bu,final Date startDate,final Date endDate,final String portfolioName) {
+		
+		final Timestamp start = new Timestamp(startDate.getTime());
+		final Timestamp end = new Timestamp(endDate.getTime());
+		try
+		{
+			if (portfolioName==null || portfolioName.equals(""))
+			{
+				final String sql = "SELECT * FROM portfoliotransaction WHERE traderemail=? AND timestamp>=? AND timestamp<=? ORDER BY tickerdesc,portfolioname,ticker";
+				List<PortfolioTransaction> pes = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
+					        public void setValues(PreparedStatement ps) throws SQLException {
+					          ps.setString(1,bu.getEmail());
+					          ps.setTimestamp(2,start);
+					          ps.setTimestamp(3,end);
+					        }
+					      },new PortfolioTransactionRowmapper());
+					return pes;
+			}
+			else
+			{
+				final String sql = "SELECT * FROM portfoliotransaction WHERE traderemail=? AND portfolioname=? AND timestamp>=? AND timestamp<=? ORDER BY tickerdesc,ticker";
+				List<PortfolioTransaction> pes = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
+					        public void setValues(PreparedStatement ps) throws SQLException {
+					          ps.setString(1,bu.getEmail());
+					          ps.setString(2,portfolioName);
+					          ps.setTimestamp(3,start);
+					          ps.setTimestamp(4,end);
+					        }
+					      },new PortfolioTransactionRowmapper());
+					return pes;
+			}
+		}
+		catch (DataAccessException e)
+		{
+			e.printStackTrace();
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}
+	}
+	/*
+	@Override
+	public List<PortfolioProfitLoss> getPortfolioProfitLoss(final BaseUser bu,final Date startDate,final Date endDate,final String portfolioName) {
+		
+		final Timestamp start = new Timestamp(startDate.getTime());
+		final Timestamp end = new Timestamp(endDate.getTime());
+		try
+		{
+			if (portfolioName==null || portfolioName.equals(""))
+			{
+				final String sql = "SELECT * FROM portfoliotransaction WHERE traderemail=? AND timestamp>=? AND timestamp<=? ORDER BY tickerdesc,portfolioname,ticker";
+				List<PortfolioTransaction> pes = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
+					        public void setValues(PreparedStatement ps) throws SQLException {
+					          ps.setString(1,bu.getEmail());
+					          ps.setTimestamp(2,start);
+					          ps.setTimestamp(3,end);
+					        }
+					      },BeanPropertyRowMapper.newInstance(PortfolioProfitLoss.class));
+					return pes;
+			}
+			else
+			{
+				final String sql = "SELECT * FROM portfoliotransaction WHERE traderemail=? AND portfolioname=? AND timestamp>=? AND timestamp<=? ORDER BY tickerdesc,ticker";
+				List<PortfolioTransaction> pes = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
+					        public void setValues(PreparedStatement ps) throws SQLException {
+					          ps.setString(1,bu.getEmail());
+					          ps.setString(2,portfolioName);
+					          ps.setTimestamp(3,start);
+					          ps.setTimestamp(4,end);
+					        }
+					      },BeanPropertyRowMapper.newInstance(PortfolioProfitLoss.class));
+					return pes;
+			}
+		}
+		catch (DataAccessException e)
+		{
+			e.printStackTrace();
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}
+	}
+	*/
 }

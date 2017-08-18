@@ -5,12 +5,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.cz.home.persistence.PersistenceRuntimeException;
 import org.cz.json.message.CzResultJson;
 import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntryType;
+import org.cz.json.portfolio.PortfolioTransaction;
 import org.cz.json.security.YearHigh;
 import org.cz.services.CzService;
 import org.cz.user.BaseUser;
@@ -18,6 +21,7 @@ import org.cz.user.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/trader")
 public class RestTraderControllerImpl implements RestTraderController{
 	
-	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(RestTraderControllerImpl.class);
 	
 	@Autowired
@@ -263,6 +266,28 @@ public class RestTraderControllerImpl implements RestTraderController{
 		}
 	}
 	
+	@RequestMapping(value = "/getPortfolioAction")
+	// CzResultJson contains "YES"/"NO" if success, message if fail
+	public CzResultJson getPortfolioAction(OAuth2Authentication auth)
+	{
+		String email = ((User)auth.getPrincipal()).getUsername();
+		
+		CzResultJson result = new CzResultJson();
+		BaseUser user = getBaseUser(email,result);
+		if (user == null)
+			return result;
+		
+		String action = "NO";
+		for (Portfolio p : user.getPortfolios().values())
+			if (!p.getActions().isEmpty())
+			{
+				action = "YES";
+				break;
+			}
+		result.success(action);
+		return result;
+	}
+	
 	private BaseUser getBaseUser(String email,CzResultJson result)
 	{
 		BaseUser user = czServices.getHome().getBaseUserByEmail(email);
@@ -287,4 +312,59 @@ public class RestTraderControllerImpl implements RestTraderController{
 		
 		return user;
 	}
+	
+	@RequestMapping(value = "/storePortfolioTransaction")
+	// CzResultJson empty if success, message if fail
+	public CzResultJson storePortfolioTransaction(OAuth2Authentication auth,@RequestBody PortfolioTransaction portfolioTransaction)
+	{
+		String email = ((User)auth.getPrincipal()).getUsername();
+		CzResultJson result = new CzResultJson();
+		BaseUser user = getBaseUser(email,result);
+		if (user == null)
+			return result;
+		
+		try
+		{
+			czServices.getHome().storePortfolioTransaction(portfolioTransaction);
+			result.success();
+		}
+		catch (PersistenceRuntimeException pe)
+		{
+			String msg = "Could not store portfolio transaction:" + pe.getMessage(); 
+			log.error(msg);
+			result.fail(msg);
+		}
+		return result;
+	}
+	
+	public CzResultJson getPortfolioTransactions(OAuth2Authentication auth,@RequestParam("startDateStr") String startDateStr,
+			@RequestParam("endDateStr") String endDateStr,
+			@RequestParam("portfolioName") String portfolioName)
+	{
+		String email = ((User)auth.getPrincipal()).getUsername();
+		CzResultJson result = new CzResultJson();
+		BaseUser user = getBaseUser(email,result);
+		if (user == null)
+			return result;
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		try
+		{
+			List<PortfolioTransaction> pts = czServices.getHome().getPortfolioTransactions(user,sdf.parse(startDateStr),
+												sdf.parse(endDateStr),portfolioName);
+			result.success(pts);
+		} catch (ParseException e) {
+			result.fail("Date format must be yyyy-MM-dd");
+			return result;
+		}
+		catch (PersistenceRuntimeException pe)
+		{
+			String msg = "Could not get portfolio transaction:" + pe.getMessage(); 
+			log.error(msg);
+			result.fail(msg);
+		}
+		return result;
+	}
+	
 }

@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.cz.home.persistence.PersistenceRuntimeException;
 import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntry;
+import org.cz.json.portfolio.PortfolioTransaction;
 import org.cz.json.portfolio.PortfolioWatch;
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
 import org.cz.json.security.Security;
@@ -38,6 +39,8 @@ public interface Home {
 	public void updatePortfolioEntryHs(PortfolioEntryHs phs);
 	public void deletePortfolioEntry(PortfolioEntry entry);
 	public void setUpdated(Portfolio portfolio);
+	public void storePortfolioTransaction(final PortfolioTransaction trans);
+	public List<PortfolioTransaction> getPortfolioTransactions(final BaseUser bu,final Date startDate,final Date endDate,final String portfolioName);
 	
 	public Security getSecurity(final String ticker);
 	public Security getSecurityByCode(final String code);

@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.cz.home.Home;
 import org.cz.importer.SecurityDailyDownload;
+import org.cz.json.portfolio.PortfolioException;
 import org.cz.json.security.SecurityDaily;
 import org.cz.user.BaseUser;
 import org.cz.user.Role;
@@ -33,7 +34,29 @@ public class CzService {
 	public void initServices()
 	{
 		portfolioMgr = new PortfolioMgr(home);
-//		scheduleUpdateDailySecurities();
+		simulateScheduleUpdateDailySecurities();
+		// scheduleUpdateDailySecurities();
+	}
+	
+	private void simulateScheduleUpdateDailySecurities()
+	{
+		new Runnable() {
+			@Override
+			public void run() {
+				try {
+					GregorianCalendar gc = new GregorianCalendar();
+					gc.set(2003, 10, 1);
+					for (int day=0; day<20; day++)
+					{
+						portfolioMgr.updatePortfolios();
+						gc.add(Calendar.DAY_OF_YEAR, 1);
+					}
+				} catch (PortfolioException e) {
+					e.printStackTrace();
+					log.error("Portfolios could not be updated");
+				}
+			}
+			};
 	}
 	
 	@SuppressWarnings("unused")
@@ -90,7 +113,15 @@ public class CzService {
 		}
 		
 		SecurityDailyDownload.download(from, to, folder);
+		
+		try {
+			portfolioMgr.updatePortfolios();
+		} catch (PortfolioException e) {
+			e.printStackTrace();
+			log.error("Portfolios could not be updated");
+		}
 	}
+	
 	
 	public void register(String email, String password, String contact, String phone, String deviceId) throws CzServicesException{
 		

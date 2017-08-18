@@ -1,9 +1,12 @@
 package org.cz.portfolio.persistence;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntry;
+import org.cz.json.portfolio.PortfolioTransaction;
 import org.cz.json.portfolio.PortfolioWatch;
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
 import org.cz.user.BaseUser;
@@ -19,4 +22,6 @@ public interface PortfolioDao {
 	public void updatePortfolioEntryHs(PortfolioEntryHs phs);
 	public void deletePortfolioEntry(PortfolioEntry entry);
 	public void setUpdated(Portfolio portfolio);
+	public void storePortfolioTransaction(final PortfolioTransaction trans);
+	public List<PortfolioTransaction> getPortfolioTransactions(final BaseUser bu,final Date startDate,final Date endDate,final String portfolioName);
 }

@@ -9,6 +9,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.cz.home.Home;
 import org.cz.json.portfolio.Portfolio;
+import org.cz.json.portfolio.PortfolioAction;
+import org.cz.json.portfolio.PortfolioActionType;
 import org.cz.json.portfolio.PortfolioEntry;
 import org.cz.json.portfolio.PortfolioEntryI;
 import org.cz.json.portfolio.PortfolioEntryType;
@@ -145,21 +147,27 @@ public class PortfolioMgr {
 
 	private void updatePortfolio(Portfolio port) throws PortfolioException {
 		
+		port.getActions().clear();
 		for (PortfolioWatch pw : port.getWatchList().values())
 		{
 			for (PortfolioEntryI pe : pw.getEntries())
 			{
-				updatePortfolioEntry(pe,port);
+				PortfolioActionType action = updatePortfolioEntry(pe,port);
+				if (!action.equals(PortfolioActionType.None))
+				{
+					PortfolioAction pa = new PortfolioAction(pw.getTicker(),action);
+					port.getActions().put(pa.getTicker(), pa);
+				}
 			}
 		}
 			
 		home.setUpdated(port);
 	}
 
-	private void updatePortfolioEntry(PortfolioEntryI pei,Portfolio portfolio) throws PortfolioException {
+	private PortfolioActionType updatePortfolioEntry(PortfolioEntryI pei,Portfolio portfolio) throws PortfolioException {
 		
 		PortfolioEntry pe = (PortfolioEntry) pei;
-		
+		PortfolioActionType action = PortfolioActionType.None;
 		if (pe.getType().equals(PortfolioEntryType.HockeyStick))
 		{
 			PortfolioEntryHs peh = (PortfolioEntryHs) pei;
@@ -182,6 +190,7 @@ public class PortfolioMgr {
 				{
 					if (peh.getDayCount() > 3)
 						changeHsStatusForSecurity(portfolio,peh,PortfolioHsStatus.BUY,sd.getClose());
+					action = PortfolioActionType.Buy;
 				}
 			}
 			else
@@ -189,11 +198,15 @@ public class PortfolioMgr {
 			{
 				SecurityDaily sd = home.getSecurityDaily(peh.getSecurityTicker(), today);
 				if ((peh.getCeiling()*0.95) < sd.getHigh())
+				{
 					changeHsStatusForSecurity(portfolio,peh,PortfolioHsStatus.SELL,sd.getClose());
+					action = PortfolioActionType.Buy;
+				}
 			}
 		}
 		else
 			log.error("Invalid portfolio entry type - ignored : " + pe.getType());
+		return action;
 	}
 
 	public Home getHome() {

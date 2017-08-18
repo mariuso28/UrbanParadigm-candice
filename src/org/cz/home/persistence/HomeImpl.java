@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.cz.home.Home;
 import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntry;
+import org.cz.json.portfolio.PortfolioTransaction;
 import org.cz.json.portfolio.PortfolioWatch;
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
 import org.cz.json.security.Security;
@@ -264,6 +265,17 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 
 	public void setPortfolioDao(PortfolioDao portfolioDao) {
 		this.portfolioDao = portfolioDao;
+	}
+
+	@Override
+	public void storePortfolioTransaction(PortfolioTransaction trans) {
+		portfolioDao.storePortfolioTransaction(trans);
+	}
+
+	@Override
+	public List<PortfolioTransaction> getPortfolioTransactions(BaseUser bu, Date startDate, Date endDate,
+			String portfolioName) {
+		return portfolioDao.getPortfolioTransactions(bu, startDate, endDate, portfolioName);
 	}
 
 	

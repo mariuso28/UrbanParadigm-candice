@@ -4,7 +4,9 @@ import java.util.Date;
 
 import org.cz.json.message.CzResultJson;
 import org.cz.json.portfolio.PortfolioEntryType;
+import org.cz.json.portfolio.PortfolioTransaction;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -52,4 +54,20 @@ public interface RestTraderController {
 	@RequestMapping(value = "/getYearHighsStr")
 	// CzResultJson contains Map<String,YearHigh> if success, message if fail
 	public CzResultJson getYearHighsStr(OAuth2Authentication auth,@RequestParam("dateStr") String dateStr);
+	
+	@RequestMapping(value = "/getPortfolioAction")
+	// CzResultJson contains "YES"/"NO" if success, message if fail
+	public CzResultJson getPortfolioAction(OAuth2Authentication auth);
+	
+	@RequestMapping(value = "/storePortfolioTransaction")
+	// CzResultJson empty if success, message if fail
+	public CzResultJson storePortfolioTransaction(OAuth2Authentication auth,@RequestBody PortfolioTransaction portfolioTransaction);
+
+	@RequestMapping(value = "/getPortfolioTransactions")
+	// CzResultJson contains List<PortfolioTransactions> if success, message if fail
+	public CzResultJson getPortfolioTransactions(OAuth2Authentication auth,@RequestParam("startDateStr") String startDateStr,
+																@RequestParam("endDateStr") String endDateStr,
+																@RequestParam("portfolioName") String portfolioName);
+	
+	
 }
