@@ -362,7 +362,7 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 		try
 		{
 			KeyHolder keyHolder = new GeneratedKeyHolder();
-			final String sql = "INSERT INTO portfoliotransaction (traderemail,porfolioname,timestamp,ticker,price,quantity,action) VALUES (?,?,?,?,?,?,?)";
+			final String sql = "INSERT INTO portfoliotransaction (traderemail,portfolioname,timestamp,ticker,price,quantity,action) VALUES (?,?,?,?,?,?,?)";
 			getJdbcTemplate().update(
 			    new PreparedStatementCreator() {
 			        public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -400,7 +400,7 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 		{
 			if (portfolioName==null || portfolioName.equals(""))
 			{
-				final String sql = "SELECT * FROM portfoliotransaction WHERE traderemail=? AND timestamp>=? AND timestamp<=? ORDER BY tickerdesc,portfolioname,ticker";
+				final String sql = "SELECT * FROM portfoliotransaction WHERE traderemail=? AND timestamp>=? AND timestamp<=? ORDER BY timestamp desc,portfolioname,ticker";
 				List<PortfolioTransaction> pes = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
 					        public void setValues(PreparedStatement ps) throws SQLException {
 					          ps.setString(1,bu.getEmail());
@@ -412,7 +412,7 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 			}
 			else
 			{
-				final String sql = "SELECT * FROM portfoliotransaction WHERE traderemail=? AND portfolioname=? AND timestamp>=? AND timestamp<=? ORDER BY tickerdesc,ticker";
+				final String sql = "SELECT * FROM portfoliotransaction WHERE traderemail=? AND portfolioname=? AND timestamp>=? AND timestamp<=? ORDER BY timestamp desc,ticker";
 				List<PortfolioTransaction> pes = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
 					        public void setValues(PreparedStatement ps) throws SQLException {
 					          ps.setString(1,bu.getEmail());
@@ -431,7 +431,7 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
 		}
 	}
-	/*
+	
 	@Override
 	public List<PortfolioProfitLoss> getPortfolioProfitLoss(final BaseUser bu,final Date startDate,final Date endDate,final String portfolioName) {
 		
@@ -439,31 +439,60 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 		final Timestamp end = new Timestamp(endDate.getTime());
 		try
 		{
+			List<PortfolioProfitLoss> pes;
 			if (portfolioName==null || portfolioName.equals(""))
 			{
-				final String sql = "SELECT * FROM portfoliotransaction WHERE traderemail=? AND timestamp>=? AND timestamp<=? ORDER BY tickerdesc,portfolioname,ticker";
-				List<PortfolioTransaction> pes = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
+				final String sql = "select s1.sell as sell,s2.buy as buy,s1.sell - s2.buy as pl,s1.portfolioname as portfolioname,s1.ticker as ticker from " +
+						"(select sum(price * quantity) as sell,portfolioname,ticker from portfoliotransaction " +
+						"where action='Sell' and traderemail=? and timestamp>=? and timestamp<=? " +
+						"group by portfolioname,ticker) as s1 " +
+						"join (select sum(price * quantity) as buy,portfolioname,ticker from portfoliotransaction " +
+						"where action='Buy' and traderemail=? and timestamp>=? and timestamp<=? " +
+						"group by portfolioname,ticker) as s2 on s1.portfolioname = s2.portfolioname and s1.ticker = s2.ticker " +
+						"order by s1.portfolioname,s1.ticker"; 
+				
+				pes = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
 					        public void setValues(PreparedStatement ps) throws SQLException {
 					          ps.setString(1,bu.getEmail());
-					          ps.setTimestamp(2,start);
-					          ps.setTimestamp(3,end);
+						      ps.setTimestamp(2,start);
+						      ps.setTimestamp(3,end);
+					          ps.setString(4,bu.getEmail());
+					          ps.setTimestamp(5,start);
+					          ps.setTimestamp(6,end);
 					        }
 					      },BeanPropertyRowMapper.newInstance(PortfolioProfitLoss.class));
-					return pes;
 			}
 			else
 			{
-				final String sql = "SELECT * FROM portfoliotransaction WHERE traderemail=? AND portfolioname=? AND timestamp>=? AND timestamp<=? ORDER BY tickerdesc,ticker";
-				List<PortfolioTransaction> pes = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
+				final String sql = "select s1.sell as sell,s2.buy as buy,s1.sell - s2.buy as pl,s1.portfolioname as portfolioname,s1.ticker as ticker from " +
+						"(select sum(price * quantity) as sell,portfolioname,ticker from portfoliotransaction " +
+						"where action='Sell' and traderemail=? and portfolioname=? and timestamp>=? and timestamp<=? " +
+						"group by portfolioname,ticker) as s1 " +
+						"join (select sum(price * quantity) as buy,portfolioname,ticker from portfoliotransaction " +
+						"where action='Buy' and traderemail=? and portfolioname=? and timestamp>=? and timestamp<=? " +
+						"group by portfolioname,ticker) as s2 on s1.portfolioname = s2.portfolioname and s1.ticker = s2.ticker " +
+						"order by s1.portfolioname,s1.ticker"; 
+				
+				pes = getJdbcTemplate().query(sql,new PreparedStatementSetter() {
 					        public void setValues(PreparedStatement ps) throws SQLException {
-					          ps.setString(1,bu.getEmail());
-					          ps.setString(2,portfolioName);
-					          ps.setTimestamp(3,start);
-					          ps.setTimestamp(4,end);
+					        	 ps.setString(1,bu.getEmail());
+					        	 ps.setString(2,portfolioName);
+							      ps.setTimestamp(3,start);
+							      ps.setTimestamp(4,end);
+							      ps.setString(5,bu.getEmail());
+							      ps.setString(6,portfolioName);
+							      ps.setTimestamp(7,start);
+							      ps.setTimestamp(8,end);
 					        }
 					      },BeanPropertyRowMapper.newInstance(PortfolioProfitLoss.class));
-					return pes;
 			}
+			for (PortfolioProfitLoss pe : pes)
+			{
+				pe.setTraderEmail(bu.getEmail());
+				pe.setStartDate(startDate);
+				pe.setEndDate(endDate);
+			}
+			return pes;
 		}
 		catch (DataAccessException e)
 		{
@@ -472,5 +501,5 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
 		}
 	}
-	*/
+	
 }

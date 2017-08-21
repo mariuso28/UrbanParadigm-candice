@@ -13,6 +13,7 @@ import org.cz.home.persistence.PersistenceRuntimeException;
 import org.cz.json.message.CzResultJson;
 import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntryType;
+import org.cz.json.portfolio.PortfolioProfitLoss;
 import org.cz.json.portfolio.PortfolioTransaction;
 import org.cz.json.security.YearHigh;
 import org.cz.services.CzService;
@@ -226,6 +227,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 		return result;
 	}
 	
+	@Override
 	@RequestMapping(value = "/getYearHighs")
 	// CzResultJson contains Map<String,YearHigh> if success, message if fail
 	public CzResultJson getYearHighs(OAuth2Authentication auth,@RequestParam("date") Date date)
@@ -252,6 +254,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 		return result;
 	}
 	
+	@Override
 	@RequestMapping(value = "/getYearHighsStr")
 	// CzResultJson contains Map<String,YearHigh> if success, message if fail
 	public CzResultJson getYearHighsStr(OAuth2Authentication auth,@RequestParam("dateStr") String dateStr)
@@ -266,6 +269,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 		}
 	}
 	
+	@Override
 	@RequestMapping(value = "/getPortfolioAction")
 	// CzResultJson contains "YES"/"NO" if success, message if fail
 	public CzResultJson getPortfolioAction(OAuth2Authentication auth)
@@ -313,6 +317,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 		return user;
 	}
 	
+	@Override
 	@RequestMapping(value = "/storePortfolioTransaction")
 	// CzResultJson empty if success, message if fail
 	public CzResultJson storePortfolioTransaction(OAuth2Authentication auth,@RequestBody PortfolioTransaction portfolioTransaction)
@@ -325,6 +330,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 		
 		try
 		{
+			portfolioTransaction.setTraderEmail(user.getEmail());
 			czServices.getHome().storePortfolioTransaction(portfolioTransaction);
 			result.success();
 		}
@@ -337,6 +343,9 @@ public class RestTraderControllerImpl implements RestTraderController{
 		return result;
 	}
 	
+	@Override
+	@RequestMapping(value = "/getPortfolioTransactions")
+	// CzResultJson contains List<PortfolioTransactions> if success, message if fail
 	public CzResultJson getPortfolioTransactions(OAuth2Authentication auth,@RequestParam("startDateStr") String startDateStr,
 			@RequestParam("endDateStr") String endDateStr,
 			@RequestParam("portfolioName") String portfolioName)
@@ -367,4 +376,36 @@ public class RestTraderControllerImpl implements RestTraderController{
 		return result;
 	}
 	
+	@Override
+	@RequestMapping(value = "/getPortfolioPL")
+	// CzResultJson contains List<PortfolioProfitLoss> if success, message if fail
+	public CzResultJson getPortfolioPL(OAuth2Authentication auth,@RequestParam("startDateStr") String startDateStr,
+			@RequestParam("endDateStr") String endDateStr,
+			@RequestParam("portfolioName") String portfolioName)
+	{
+		String email = ((User)auth.getPrincipal()).getUsername();
+		CzResultJson result = new CzResultJson();
+		BaseUser user = getBaseUser(email,result);
+		if (user == null)
+			return result;
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		try
+		{
+			List<PortfolioProfitLoss> pts = czServices.getHome().getPortfolioProfitLoss(user,sdf.parse(startDateStr),
+												sdf.parse(endDateStr),portfolioName);
+			result.success(pts);
+		} catch (ParseException e) {
+			result.fail("Date format must be yyyy-MM-dd");
+			return result;
+		}
+		catch (PersistenceRuntimeException pe)
+		{
+			String msg = "Could not get portfolio PL:" + pe.getMessage(); 
+			log.error(msg);
+			result.fail(msg);
+		}
+		return result;
+	}
 }

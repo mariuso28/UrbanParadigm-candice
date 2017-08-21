@@ -69,5 +69,11 @@ public interface RestTraderController {
 																@RequestParam("endDateStr") String endDateStr,
 																@RequestParam("portfolioName") String portfolioName);
 	
+	@RequestMapping(value = "/getPortfolioPL")
+	// CzResultJson contains List<PortfolioProfitLoss> if success, message if fail
+	public CzResultJson getPortfolioPL(OAuth2Authentication auth,@RequestParam("startDateStr") String startDateStr,
+			@RequestParam("endDateStr") String endDateStr,
+			@RequestParam("portfolioName") String portfolioName);
+	
 	
 }
