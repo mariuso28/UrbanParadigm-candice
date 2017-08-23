@@ -52,13 +52,4 @@ public class PortfolioEntryHs extends PortfolioEntry
 		this.portfolioEntryHsUnique = portfolioEntryHsUnique;
 	}
 
-	@Override
-	public String toString() {
-		return "PortfolioEntryHs [portfolioEntryHsUnique=" + portfolioEntryHsUnique + ", status=" + status
-				+ ", dayCount=" + dayCount + ", ceiling=" + ceiling + ", getSecurityTicker()=" + getSecurityTicker()
-				+ ", getType()=" + getType() + "]";
-	}
-
-	
-
 }

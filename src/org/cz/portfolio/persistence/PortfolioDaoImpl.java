@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.cz.home.persistence.PersistenceRuntimeException;
+import org.cz.json.fees.Fee;
 import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntry;
 import org.cz.json.portfolio.PortfolioEntryI;
@@ -19,6 +20,7 @@ import org.cz.json.portfolio.PortfolioProfitLoss;
 import org.cz.json.portfolio.PortfolioTransaction;
 import org.cz.json.portfolio.PortfolioWatch;
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
+import org.cz.json.portfolio.mp.PortfolioEntryMp;
 import org.cz.user.BaseUser;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -200,8 +202,30 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 				{
 					port = getPortfolioEntryHss(port);
 				}
+				else
+				if (port.getType().equals(PortfolioEntryType.MarketPrice))
+				{
+					port = getPortfolioEntryMp(port);
+				}
 				watch.getEntries().add(port);
 			}
+		}
+		catch (DataAccessException e)
+		{
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}
+	}
+
+	private PortfolioEntry getPortfolioEntryMp(final PortfolioEntry portEntry) {
+		try
+		{
+			final String sql = "SELECT * FROM portfolioentrymp WHERE portfolioentryid=?";
+			PortfolioEntryMp portMp = getJdbcTemplate().queryForObject(sql,new Long[] { portEntry.getId() },BeanPropertyRowMapper.newInstance(PortfolioEntryMp.class));
+			portMp.setSecurityTicker(portEntry.getSecurityTicker());
+			portMp.setId(portEntry.getId());
+			portMp.setType(portEntry.getType());
+			return portMp;
 		}
 		catch (DataAccessException e)
 		{
@@ -226,7 +250,7 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
 		}
 	}
-
+	
 	@Override
 	public void storePortfolioEntry(final PortfolioWatch watch,final PortfolioEntry entry) {
 
@@ -252,6 +276,30 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 			
 			if (entry.getType().equals(PortfolioEntryType.HockeyStick))
 				storePortfolioEntryHs((PortfolioEntryHs) entry);
+			else
+			if (entry.getType().equals(PortfolioEntryType.MarketPrice))
+				storePortfolioEntryMp((PortfolioEntryMp) entry);
+		}
+		catch (DataAccessException e)
+		{
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}	
+	}
+
+	private void storePortfolioEntryMp(final PortfolioEntryMp entry) throws DataAccessException
+	{
+		final String sql = "INSERT INTO portfolioentrymp (portfolioentryid,status,target) VALUES (?,?,?)";
+		try
+		{
+			getJdbcTemplate().update(sql
+			        , new PreparedStatementSetter() {
+			      public void setValues(PreparedStatement ps) throws SQLException {
+				        	ps.setLong(1, entry.getId());
+							ps.setString(2, entry.getStatus().name());
+							ps.setDouble(3, entry.getTarget());
+			      }
+		    });
 		}
 		catch (DataAccessException e)
 		{
@@ -307,11 +355,42 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 	}
 
 	@Override
+	public void updatePortfolioEntryMp(final PortfolioEntryMp pmp) throws DataAccessException {
+		
+		final String sql = "UPDATE portfolioentrymp SET status=?,target=? WHERE id = ?";
+		
+		try
+		{
+			getJdbcTemplate().update(sql
+				, new PreparedStatementSetter() {
+				public void setValues(PreparedStatement ps) throws SQLException {
+					ps.setString(1, pmp.getStatus().name());
+					ps.setDouble(2, pmp.getTarget());
+					ps.setLong(4, pmp.getId());
+				}
+				});
+		}
+		catch (DataAccessException e)
+		{
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}	
+	}
+	
+	@Override
 	public void deletePortfolioEntry(final PortfolioEntry entry) {
 		try
 		{
 			if (entry.getType().equals(PortfolioEntryType.HockeyStick))
 				getJdbcTemplate().update("DELETE FROM portfolioentryhs WHERE portfolioentryid = ?"
+						  , new PreparedStatementSetter() {
+							public void setValues(PreparedStatement ps) throws SQLException {
+				    	  	ps.setLong(1, entry.getId());
+				      }
+				    });
+			else
+			if (entry.getType().equals(PortfolioEntryType.MarketPrice))
+				getJdbcTemplate().update("DELETE FROM portfolioentrymp WHERE portfolioentryid = ?"
 						  , new PreparedStatementSetter() {
 							public void setValues(PreparedStatement ps) throws SQLException {
 				    	  	ps.setLong(1, entry.getId());
@@ -362,7 +441,7 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 		try
 		{
 			KeyHolder keyHolder = new GeneratedKeyHolder();
-			final String sql = "INSERT INTO portfoliotransaction (traderemail,portfolioname,timestamp,ticker,price,quantity,action) VALUES (?,?,?,?,?,?,?)";
+			final String sql = "INSERT INTO portfoliotransaction (traderemail,portfolioname,timestamp,ticker,price,quantity,action,brokerage,clearing,stamp,gst,net) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 			getJdbcTemplate().update(
 			    new PreparedStatementCreator() {
 			        public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -375,6 +454,11 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 						ps.setDouble(5, trans.getPrice());
 						ps.setDouble(6, trans.getQuantity());
 						ps.setString(7, trans.getAction().name());
+						ps.setDouble(8, trans.getBrokerage());
+						ps.setDouble(9, trans.getClearing());
+						ps.setDouble(10, trans.getStamp());
+						ps.setDouble(11, trans.getGst());
+						ps.setDouble(12, trans.getNet());
 			            return ps;
 			        }
 			    },
@@ -443,10 +527,10 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 			if (portfolioName==null || portfolioName.equals(""))
 			{
 				final String sql = "select s1.sell as sell,s2.buy as buy,s1.sell - s2.buy as pl,s1.portfolioname as portfolioname,s1.ticker as ticker from " +
-						"(select sum(price * quantity) as sell,portfolioname,ticker from portfoliotransaction " +
+						"(select sum(net) as sell,portfolioname,ticker from portfoliotransaction " +
 						"where action='Sell' and traderemail=? and timestamp>=? and timestamp<=? " +
 						"group by portfolioname,ticker) as s1 " +
-						"join (select sum(price * quantity) as buy,portfolioname,ticker from portfoliotransaction " +
+						"join (select sumnet) as buy,portfolioname,ticker from portfoliotransaction " +
 						"where action='Buy' and traderemail=? and timestamp>=? and timestamp<=? " +
 						"group by portfolioname,ticker) as s2 on s1.portfolioname = s2.portfolioname and s1.ticker = s2.ticker " +
 						"order by s1.portfolioname,s1.ticker"; 
@@ -465,10 +549,10 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 			else
 			{
 				final String sql = "select s1.sell as sell,s2.buy as buy,s1.sell - s2.buy as pl,s1.portfolioname as portfolioname,s1.ticker as ticker from " +
-						"(select sum(price * quantity) as sell,portfolioname,ticker from portfoliotransaction " +
+						"(select sum(net) as sell,portfolioname,ticker from portfoliotransaction " +
 						"where action='Sell' and traderemail=? and portfolioname=? and timestamp>=? and timestamp<=? " +
 						"group by portfolioname,ticker) as s1 " +
-						"join (select sum(price * quantity) as buy,portfolioname,ticker from portfoliotransaction " +
+						"join (select sum(net) as buy,portfolioname,ticker from portfoliotransaction " +
 						"where action='Buy' and traderemail=? and portfolioname=? and timestamp>=? and timestamp<=? " +
 						"group by portfolioname,ticker) as s2 on s1.portfolioname = s2.portfolioname and s1.ticker = s2.ticker " +
 						"order by s1.portfolioname,s1.ticker"; 
@@ -497,6 +581,24 @@ public class PortfolioDaoImpl extends NamedParameterJdbcDaoSupport implements Po
 		catch (DataAccessException e)
 		{
 			e.printStackTrace();
+			log.error("Could not execute : " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}
+	}
+
+	@Override
+	public Map<String, Fee> getFees() {
+		try
+		{
+			final String sql = "SELECT * FROM fees";
+			List<Fee> feeList = getJdbcTemplate().query(sql,BeanPropertyRowMapper.newInstance(Fee.class));
+			Map<String,Fee> fees = new TreeMap<String,Fee>();
+			for (Fee f : feeList)
+				fees.put(f.getName(),f);
+			return fees;
+		}
+		catch (DataAccessException e)
+		{
 			log.error("Could not execute : " + e.getMessage());
 			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
 		}

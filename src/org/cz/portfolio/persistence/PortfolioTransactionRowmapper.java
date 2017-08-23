@@ -35,6 +35,11 @@ public class PortfolioTransactionRowmapper implements RowMapper<PortfolioTransac
 		pt.setPrice(rs.getDouble("price"));
 		pt.setQuantity(rs.getDouble("quantity"));
 		pt.setAction(PortfolioActionType.valueOf(rs.getString("action")));
+		pt.setBrokerage(rs.getDouble("brokerage"));
+		pt.setClearing(rs.getDouble("clearing"));
+		pt.setStamp(rs.getDouble("stamp"));
+		pt.setGst(rs.getDouble("gst"));
+		pt.setNet(rs.getDouble("net"));
 	}
 	
 }

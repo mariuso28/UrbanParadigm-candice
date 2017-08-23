@@ -8,12 +8,14 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.cz.home.Home;
+import org.cz.json.fees.Fee;
 import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntry;
 import org.cz.json.portfolio.PortfolioProfitLoss;
 import org.cz.json.portfolio.PortfolioTransaction;
 import org.cz.json.portfolio.PortfolioWatch;
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
+import org.cz.json.portfolio.mp.PortfolioEntryMp;
 import org.cz.json.security.Security;
 import org.cz.json.security.SecurityDaily;
 import org.cz.json.security.YearHigh;
@@ -155,6 +157,12 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 	}
 	
 	@Override
+	public void updatePortfolioEntryMp(PortfolioEntryMp pmp)
+	{
+		portfolioDao.updatePortfolioEntryMp(pmp);
+	}
+	
+	@Override
 	public void deletePortfolioEntry(PortfolioEntry entry)
 	{
 		portfolioDao.deletePortfolioEntry(entry);
@@ -283,6 +291,11 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 	public List<PortfolioProfitLoss> getPortfolioProfitLoss(BaseUser bu, Date startDate, Date endDate, String portfolioName)
 	{
 		return portfolioDao.getPortfolioProfitLoss(bu, startDate, endDate, portfolioName);
+	}
+
+	@Override
+	public Map<String, Fee> getFees() {
+		return portfolioDao.getFees();
 	}
 	
 }

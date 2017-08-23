@@ -202,6 +202,32 @@ public class RestTraderControllerImpl implements RestTraderController{
 	}
 	
 	@Override
+	@RequestMapping(value = "/createPortfolioEntryPrice")
+	// CzResultJson contains refreshed portfolio if success, message if fail
+	public CzResultJson createPortfolioEntryPrice(OAuth2Authentication auth,@RequestParam("portfolioName") String portfolioName,
+			@RequestParam("ticker") String ticker,@RequestParam("entryType") PortfolioEntryType type,@RequestParam("price") double price)
+	{
+		String email = ((User)auth.getPrincipal()).getUsername();
+		
+		CzResultJson result = new CzResultJson();
+		BaseUser user = getBaseUser(email,result);
+		if (user == null)
+			return result;
+		
+		try
+		{
+			Portfolio portfolio = user.getPortfolios().get(portfolioName);
+			czServices.getPortfolioMgr().createPortfolioEntryPrice(portfolio, ticker,type,price);
+			result.success(portfolio);
+		}
+		catch (Exception e)
+		{
+			result.fail("Could not add entry - " + e.getMessage());
+		}
+		return result;
+	}
+	
+	@Override
 	@RequestMapping(value = "/deletePortfolioEntry")
 	// CzResultJson contains refreshed portfolio if success, message if fail
 	public CzResultJson deletePortfolioEntry(OAuth2Authentication auth,@RequestParam("portfolioName") String portfolioName,
@@ -331,6 +357,7 @@ public class RestTraderControllerImpl implements RestTraderController{
 		try
 		{
 			portfolioTransaction.setTraderEmail(user.getEmail());
+			portfolioTransaction.calcFees(czServices.getPortfolioMgr().getFees());
 			czServices.getHome().storePortfolioTransaction(portfolioTransaction);
 			result.success();
 		}

@@ -3,6 +3,7 @@ package org.cz.json.portfolio;
 import java.io.IOException;
 
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
+import org.cz.json.portfolio.mp.PortfolioEntryMp;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -24,7 +25,11 @@ public class PortfolioEntryDeserializer extends StdNodeBasedDeserializer<Portfol
 		java.lang.reflect.Type targetType;
 	    if (root.has("portfolioEntryHsUnique")) {
 	        targetType = PortfolioEntryHs.class;
-	    } else {
+	    } else 
+	    if (root.has("portfolioEntryMpUnique")) {
+	  	        targetType = PortfolioEntryMp.class;
+	  	    } 
+	    else {
 	        targetType = PortfolioEntry.class;
 	    }
 	    

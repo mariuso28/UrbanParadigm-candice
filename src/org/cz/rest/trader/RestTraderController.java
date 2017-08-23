@@ -42,6 +42,11 @@ public interface RestTraderController {
 	public CzResultJson createPortfolioEntry(OAuth2Authentication auth,@RequestParam("portfolioName") String portfolioName,
 					@RequestParam("ticker") String ticker,@RequestParam("entryType") PortfolioEntryType type);
 	
+	@RequestMapping(value = "/createPortfolioEntryPrice")
+	// CzResultJson contains refreshed portfolio if success, message if fail
+	public CzResultJson createPortfolioEntryPrice(OAuth2Authentication auth,@RequestParam("portfolioName") String portfolioName,
+					@RequestParam("ticker") String ticker,@RequestParam("entryType") PortfolioEntryType type,@RequestParam("price") double price);
+	
 	@RequestMapping(value = "/deletePortfolioEntry")
 	// CzResultJson contains refreshed portfolio if success, message if fail
 	public CzResultJson deletePortfolioEntry(OAuth2Authentication auth,@RequestParam("portfolioName") String portfolioName,

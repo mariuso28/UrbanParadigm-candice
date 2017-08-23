@@ -6,12 +6,14 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.cz.home.persistence.PersistenceRuntimeException;
+import org.cz.json.fees.Fee;
 import org.cz.json.portfolio.Portfolio;
 import org.cz.json.portfolio.PortfolioEntry;
 import org.cz.json.portfolio.PortfolioProfitLoss;
 import org.cz.json.portfolio.PortfolioTransaction;
 import org.cz.json.portfolio.PortfolioWatch;
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
+import org.cz.json.portfolio.mp.PortfolioEntryMp;
 import org.cz.json.security.Security;
 import org.cz.json.security.SecurityDaily;
 import org.cz.json.security.YearHigh;
@@ -38,6 +40,7 @@ public interface Home {
 	public void deletePortfolioWatch(PortfolioWatch watch);
 	public void storePortfolioEntry(final PortfolioWatch watch,final PortfolioEntry entry);
 	public void updatePortfolioEntryHs(PortfolioEntryHs phs);
+	public void updatePortfolioEntryMp(PortfolioEntryMp pmp);
 	public void deletePortfolioEntry(PortfolioEntry entry);
 	public void setUpdated(Portfolio portfolio);
 	public void storePortfolioTransaction(final PortfolioTransaction trans);
@@ -55,6 +58,7 @@ public interface Home {
 	public List<SecurityDaily> getLastSecurityDailys();
 	public List<SecurityDaily> getSecurityDailyForRange(final String ticker,final Date start,final Date end);
 	public void storeSecurityDaily(final SecurityDaily securityDaily);
-	public Map<String,YearHigh> getYearHighs(Date date,Date date2);	
+	public Map<String,YearHigh> getYearHighs(Date date,Date date2);
+	public Map<String, Fee> getFees();	
 		
 }

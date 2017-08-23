@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cz.json.portfolio.hs.PortfolioEntryHs;
+import org.cz.json.portfolio.mp.PortfolioEntryMp;
 
 public class PortfolioWatch {
 
@@ -39,6 +40,20 @@ public class PortfolioWatch {
 		else
 			pe = new PortfolioEntry(null,this.getTicker());
 
+		entries.add(pe);
+		return pe;
+	}
+	
+	public PortfolioEntry createPortfolioEntry(PortfolioEntryType type, double price) {
+		PortfolioEntry pe = null;
+		if (type.equals(PortfolioEntryType.MarketPrice))
+		{
+			pe = new PortfolioEntryMp(this.getTicker());
+			PortfolioEntryMp pmp = (PortfolioEntryMp) pe;
+			pmp.setTarget(price);
+		}
+		else
+			pe = new PortfolioEntry(null,this.getTicker());
 		entries.add(pe);
 		return pe;
 	}

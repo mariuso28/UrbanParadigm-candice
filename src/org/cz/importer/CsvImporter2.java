@@ -204,9 +204,9 @@ public class CsvImporter2 {
 				"cz-service.xml");
 
 		Home home = (Home) context.getBean("home");
-		String folder = "/home/pmk/candice/dailyupdates/";
-		String loaded = "/home/pmk/candice/loaded/";
-		String goToWeb = "off";
+		String folder = "/home/pmk/candice/dailyupdates/2012";
+		String loaded = "/home/pmk/candice/loaded/2012";
+		String goToWeb = "on";
 		
 		if (args.length>0)
 			folder = args[0];
