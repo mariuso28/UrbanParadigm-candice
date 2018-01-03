@@ -12,6 +12,7 @@ import org.cz.home.Home;
 import org.cz.importer.util.BusinessDayCheck;
 import org.cz.importer.util.UrlConnection;
 import org.cz.json.security.SecurityDaily;
+import org.cz.util.DateUtil;
 import org.html.parser.UrlParserException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -58,8 +59,10 @@ public class UrlImporter {
 		gc.set(Calendar.HOUR, 0);
 		gc.set(Calendar.MINUTE, 0);
 		gc.set(Calendar.SECOND, 0);
-		Date now = gc.getTime();
-		while (last.before(now))
+		Date start = gc.getTime();
+		
+		log.info("Updating securities at: " + start);
+		while (last.before(start))
 		{
 			if (BusinessDayCheck.isBusinessDay(gcLast))
 			{
@@ -77,6 +80,11 @@ public class UrlImporter {
 			gcLast.add(Calendar.DAY_OF_YEAR, 1);
 			last = gcLast.getTime();
 		}
+		
+		gc = new GregorianCalendar();
+		Date finish = gc.getTime();
+		log.info("Finished Updating securities at: " + finish);
+		log.info("Process took: " + DateUtil.formatStartFinish(start,finish));
 	}
 	
 	private static String buildUrl(GregorianCalendar gc)

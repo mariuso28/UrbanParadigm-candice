@@ -1,8 +1,16 @@
 package org.cz.importer.util;
 
+import java.text.NumberFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import org.apache.log4j.Logger;
+import org.cz.util.DateUtil;
 
 public class BusinessDayCheck {
+
+	private static final Logger log = Logger.getLogger(BusinessDayCheck.class);
 
 	public static boolean isBusinessDay(Calendar cal){
 		// check if weekend
@@ -25,4 +33,6 @@ public class BusinessDayCheck {
 		
 		return true;
 	}
+
+
 }

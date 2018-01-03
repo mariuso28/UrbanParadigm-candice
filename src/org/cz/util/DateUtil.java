@@ -56,5 +56,26 @@ public class DateUtil {
 		gc.set(Calendar.MILLISECOND,gc.getActualMinimum(Calendar.MILLISECOND));
 	}
 	
+	public static String formatStartFinish(Date start,Date finish)
+	{
+		long diff = (finish.getTime() - start.getTime()) / 1000;
+		long hours = diff / (60 * 60);
+		long mins = (diff - (hours * (60 * 60))) / 60;
+		long secs = (diff - (hours * (60 * 60))) - (mins * 60);
+		return String.format("%d",hours) + ":Hours " +  String.format("%02d",mins) + ":Mins " +  String.format("%02d",secs) + ":Secs";  
+	}
+	
+	public static void main(String[] args)
+	{
+		GregorianCalendar gc = new GregorianCalendar();
+		Date start = gc.getTime();
+		gc.add(Calendar.DAY_OF_YEAR, 1);
+		gc.add(Calendar.HOUR, 1);
+		gc.add(Calendar.MINUTE, 4);
+		gc.add(Calendar.SECOND, 23);
+		Date finish = gc.getTime();
+		
+		log.info(DateUtil.formatStartFinish(start,finish));
+	}
 	
 }
