@@ -3,14 +3,12 @@ package org.cz.services;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.cz.home.Home;
-import org.cz.importer.SecurityDailyDownload;
+import org.cz.importer.UrlImporter;
 import org.cz.json.portfolio.PortfolioException;
 import org.cz.json.portfolio.PortfolioMgr;
-import org.cz.json.security.SecurityDaily;
 import org.cz.user.BaseUser;
 import org.cz.user.Role;
 import org.cz.validate.RegistrationValidator;
@@ -35,10 +33,12 @@ public class CzService {
 	public void initServices()
 	{
 		portfolioMgr = new PortfolioMgr(home);
-		simulateScheduleUpdateDailySecurities();
-		// scheduleUpdateDailySecurities();
+		// simulateScheduleUpdateDailySecurities();
+		home.securityDailyPatch();
+		scheduleUpdateDailySecurities();
 	}
 	
+	@SuppressWarnings("unused")
 	private void simulateScheduleUpdateDailySecurities()
 	{
 		new Runnable() {
@@ -60,7 +60,6 @@ public class CzService {
 			};
 	}
 	
-	@SuppressWarnings("unused")
 	private void scheduleUpdateDailySecurities() 
 	{	
 		dailyRefresh();
@@ -95,6 +94,12 @@ public class CzService {
 
 	public void dailyRefresh()
 	{
+		UrlImporter.updateSecuritiesDaily(home);
+	}
+	
+	/*
+	public void dailyRefresh()
+	{
 		GregorianCalendar gc = new GregorianCalendar();
 		log.info("REFRESHING SECURITIES DAILY AT : " + gc.getTime());
 		String folder = "/home/pmk/candice/dailyupdates/" + gc.get(Calendar.YEAR);
@@ -122,7 +127,7 @@ public class CzService {
 			log.error("Portfolios could not be updated");
 		}
 	}
-	
+	*/
 	
 	public void register(String email, String password, String contact, String phone, String deviceId) throws CzServicesException{
 		

@@ -22,6 +22,22 @@ public class SecurityDailyDaoImpl extends NamedParameterJdbcDaoSupport implement
 	private static Logger log = Logger.getLogger(SecurityDailyDaoImpl.class);
 	
 	@Override
+	public void securityDailyPatch()
+	{
+		final String sql = "DELETE FROM securitydaily WHERE date > '2030-01-01'";
+		log.info("Performing security daily patch for erroneous dates");
+		try
+		{
+			getJdbcTemplate().update(sql);
+		}
+		catch (DataAccessException e)
+		{
+			log.error("Could not execute : " + sql + " - " + e.getMessage());
+			throw new PersistenceRuntimeException("Could not execute : " + e.getMessage());
+		}
+	}
+	
+	@Override
 	public SecurityDaily getSecurityDaily(final String ticker,final Date date) {
 		
 		final Timestamp ts = new Timestamp(date.getTime());

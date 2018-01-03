@@ -297,5 +297,10 @@ public class HomeImpl extends NamedParameterJdbcDaoSupport implements Home {
 	public Map<String, Fee> getFees() {
 		return portfolioDao.getFees();
 	}
+
+	@Override
+	public void securityDailyPatch() {
+		securityDailyDao.securityDailyPatch();
+	}
 	
 }

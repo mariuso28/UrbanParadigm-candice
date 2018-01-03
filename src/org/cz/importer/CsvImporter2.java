@@ -3,14 +3,17 @@ package org.cz.importer;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.cz.home.Home;
 import org.cz.importer.util.MoveFile;
+import org.cz.importer.util.UrlConnection;
 import org.cz.json.security.Security;
 import org.cz.json.security.SecurityDaily;
 import org.cz.scrape.SecurityGrab;
+import org.html.parser.UrlParserException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -69,9 +72,8 @@ public class CsvImporter2 {
 	     reader.close();
 	}
 	
-	public void readSecurities() throws IOException
+	void readSecurities(CSVReader reader) throws IOException
 	{
-		CSVReader reader = new CSVReader(new FileReader(path));
 		currentFile++;
 		log.info("$$$ Importing securityDailys from : " + path + "  file#: " + currentFile + " of: " + fileNum);
 		
@@ -184,7 +186,8 @@ public class CsvImporter2 {
 	            log.info("Importing :" +  fileEntry.getAbsolutePath());
 	            CsvImporter2 csv = new CsvImporter2(home,fileEntry.getAbsolutePath(),goToWeb);
 	    		try {
-	    			csv.readSecurities();
+	    			CSVReader reader = new CSVReader(new FileReader(fileEntry.getAbsolutePath()));
+	    			csv.readSecurities(reader);
 	    			if (loaded=="null")
 	    				MoveFile.deleteFile(fileEntry.getAbsolutePath());
 	    			else
@@ -195,6 +198,30 @@ public class CsvImporter2 {
 	    		}
 	        }
 	    }
+	}
+	
+	public static void importFilesForUrl(final String url,String goToWeb,Home home) {
+	    
+		try {
+			UrlConnection urlConn = new UrlConnection(url);
+			try {
+				CsvImporter2 csv = new CsvImporter2(home,url,goToWeb);
+    			CSVReader reader = new CSVReader(urlConn.getBins());
+    			csv.readSecurities(reader);
+    		} catch (IOException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			log.error("Fatal exiting");
+			System.exit(1);
+		} catch (UrlParserException e) {
+			e.printStackTrace();
+			log.error("Fatal exiting");
+			System.exit(1);
+		}
+		
 	}
 	
 	public static void main(String[] args)

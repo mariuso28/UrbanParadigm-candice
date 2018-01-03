@@ -60,5 +60,7 @@ public interface Home {
 	public void storeSecurityDaily(final SecurityDaily securityDaily);
 	public Map<String,YearHigh> getYearHighs(Date date,Date date2);
 	public Map<String, Fee> getFees();	
+	public void securityDailyPatch();	
+
 		
 }

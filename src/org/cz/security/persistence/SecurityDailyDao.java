@@ -13,5 +13,6 @@ public interface SecurityDailyDao {
 	public List<SecurityDaily> getLastSecurityDailys();
 	public void storeSecurityDaily(SecurityDaily securityDaily);
 	public List<SecurityDaily> getSecurityDailyForRange(String ticker, Date start, Date end);
-	public List<YearHigh> getYearHighs(Date date,Date date2);	
+	public List<YearHigh> getYearHighs(Date date,Date date2);
+	public void securityDailyPatch();	
 }
